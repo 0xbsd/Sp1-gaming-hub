@@ -1,0 +1,695 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ZK Gaming Hub - Play, Learn, Prove</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary: #6366f1;
+            --primary-dark: #4f46e5;
+            --secondary: #8b5cf6;
+            --accent: #10b981;
+            --dark: #0f172a;
+            --dark-lighter: #1e293b;
+            --text: #e2e8f0;
+            --text-dim: #94a3b8;
+            --border: #334155;
+            --glow: rgba(99, 102, 241, 0.5);
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: var(--dark);
+            color: var(--text);
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+
+        /* Animated Background */
+        .bg-animation {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            background: 
+                radial-gradient(circle at 20% 80%, var(--primary) 0%, transparent 50%),
+                radial-gradient(circle at 80% 20%, var(--secondary) 0%, transparent 50%),
+                radial-gradient(circle at 40% 40%, var(--accent) 0%, transparent 50%);
+            opacity: 0.1;
+            animation: bgMove 20s ease-in-out infinite;
+        }
+
+        @keyframes bgMove {
+            0%, 100% { transform: scale(1) rotate(0deg); }
+            33% { transform: scale(1.1) rotate(120deg); }
+            66% { transform: scale(0.9) rotate(240deg); }
+        }
+
+        /* Navigation */
+        nav {
+            position: fixed;
+            top: 0;
+            width: 100%;
+            background: rgba(15, 23, 42, 0.9);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid var(--border);
+            z-index: 1000;
+            padding: 1rem 2rem;
+        }
+
+        .nav-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            font-size: 1.5rem;
+            font-weight: bold;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 2rem;
+            align-items: center;
+        }
+
+        .nav-link {
+            color: var(--text-dim);
+            text-decoration: none;
+            transition: color 0.3s;
+        }
+
+        .nav-link:hover {
+            color: var(--text);
+        }
+
+        .connect-btn {
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 0.5rem 1.5rem;
+            border-radius: 0.5rem;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-weight: 500;
+        }
+
+        .connect-btn:hover {
+            background: var(--primary-dark);
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(99, 102, 241, 0.3);
+        }
+
+        /* Hero Section */
+        .hero {
+            margin-top: 80px;
+            padding: 4rem 2rem;
+            text-align: center;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .hero h1 {
+            font-size: clamp(2.5rem, 8vw, 5rem);
+            margin-bottom: 1rem;
+            background: linear-gradient(135deg, var(--primary), var(--secondary), var(--accent));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            animation: glow 3s ease-in-out infinite;
+        }
+
+        @keyframes glow {
+            0%, 100% { filter: brightness(1); }
+            50% { filter: brightness(1.2); }
+        }
+
+        .hero-subtitle {
+            font-size: 1.5rem;
+            color: var(--text-dim);
+            margin-bottom: 3rem;
+            max-width: 600px;
+        }
+
+        /* Interactive Demo */
+        .demo-container {
+            background: var(--dark-lighter);
+            border: 1px solid var(--border);
+            border-radius: 1rem;
+            padding: 2rem;
+            max-width: 800px;
+            margin: 2rem auto;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5);
+        }
+
+        .demo-header {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        .demo-header h2 {
+            font-size: 2rem;
+            margin-bottom: 0.5rem;
+            color: var(--primary);
+        }
+
+        /* ZK Proof Visualizer */
+        .proof-visualizer {
+            display: grid;
+            grid-template-columns: 1fr auto 1fr;
+            gap: 2rem;
+            align-items: center;
+            margin: 2rem 0;
+        }
+
+        .proof-box {
+            background: rgba(99, 102, 241, 0.1);
+            border: 2px solid var(--primary);
+            border-radius: 0.5rem;
+            padding: 1.5rem;
+            text-align: center;
+            transition: all 0.3s;
+        }
+
+        .proof-box:hover {
+            transform: scale(1.05);
+            box-shadow: 0 0 20px var(--glow);
+        }
+
+        .arrow {
+            font-size: 2rem;
+            color: var(--accent);
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.2); }
+        }
+
+        /* Game Grid */
+        .games-section {
+            padding: 4rem 2rem;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .section-title {
+            font-size: 2.5rem;
+            text-align: center;
+            margin-bottom: 3rem;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .games-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+        }
+
+        .game-card {
+            background: var(--dark-lighter);
+            border: 1px solid var(--border);
+            border-radius: 1rem;
+            padding: 1.5rem;
+            transition: all 0.3s;
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .game-card::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, var(--glow) 0%, transparent 70%);
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+
+        .game-card:hover::before {
+            opacity: 1;
+        }
+
+        .game-card:hover {
+            transform: translateY(-5px);
+            border-color: var(--primary);
+        }
+
+        .game-icon {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+        }
+
+        .game-title {
+            font-size: 1.5rem;
+            margin-bottom: 0.5rem;
+            color: var(--primary);
+        }
+
+        .game-description {
+            color: var(--text-dim);
+            margin-bottom: 1rem;
+        }
+
+        .difficulty {
+            display: inline-block;
+            padding: 0.25rem 0.75rem;
+            border-radius: 1rem;
+            font-size: 0.875rem;
+            font-weight: 500;
+        }
+
+        .difficulty-easy {
+            background: rgba(16, 185, 129, 0.2);
+            color: #10b981;
+        }
+
+        .difficulty-medium {
+            background: rgba(251, 191, 36, 0.2);
+            color: #fbbf24;
+        }
+
+        .difficulty-hard {
+            background: rgba(239, 68, 68, 0.2);
+            color: #ef4444;
+        }
+
+        /* Stats Section */
+        .stats-section {
+            background: var(--dark-lighter);
+            padding: 3rem 2rem;
+            margin: 4rem 0;
+        }
+
+        .stats-grid {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 2rem;
+            text-align: center;
+        }
+
+        .stat-card {
+            padding: 2rem;
+        }
+
+        .stat-number {
+            font-size: 3rem;
+            font-weight: bold;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .stat-label {
+            color: var(--text-dim);
+            margin-top: 0.5rem;
+        }
+
+        /* Mobile Responsive */
+        @media (max-width: 768px) {
+            .nav-links {
+                display: none;
+            }
+
+            .proof-visualizer {
+                grid-template-columns: 1fr;
+                gap: 1rem;
+            }
+
+            .arrow {
+                transform: rotate(90deg);
+            }
+
+            .hero h1 {
+                font-size: 2.5rem;
+            }
+
+            .hero-subtitle {
+                font-size: 1.2rem;
+            }
+        }
+
+        /* Loading Animation */
+        .loader {
+            width: 50px;
+            height: 50px;
+            border: 3px solid var(--border);
+            border-top-color: var(--primary);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 2rem auto;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            z-index: 2000;
+            justify-content: center;
+            align-items: center;
+            padding: 2rem;
+        }
+
+        .modal-content {
+            background: var(--dark-lighter);
+            border: 1px solid var(--border);
+            border-radius: 1rem;
+            padding: 2rem;
+            max-width: 500px;
+            width: 100%;
+            position: relative;
+        }
+
+        .close-modal {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: var(--text-dim);
+        }
+
+        .close-modal:hover {
+            color: var(--text);
+        }
+    </style>
+</head>
+<body>
+    <div class="bg-animation"></div>
+
+    <!-- Navigation -->
+    <nav>
+        <div class="nav-container">
+            <div class="logo">
+                <span>🎮</span>
+                <span>ZK Gaming Hub</span>
+            </div>
+            <div class="nav-links">
+                <a href="#games" class="nav-link">Games</a>
+                <a href="#learn" class="nav-link">Learn</a>
+                <a href="#stats" class="nav-link">Stats</a>
+                <button class="connect-btn" onclick="connectWallet()">Connect Wallet</button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="hero">
+        <h1>Play, Learn, Prove</h1>
+        <p class="hero-subtitle">
+            Experience the future of gaming with Zero-Knowledge proofs. 
+            Learn complex concepts through fun, interactive games.
+        </p>
+
+        <!-- Interactive Demo -->
+        <div class="demo-container">
+            <div class="demo-header">
+                <h2>🔐 Understanding ZK in 60 Seconds</h2>
+                <p>See how Zero-Knowledge proofs work in real-time</p>
+            </div>
+
+            <div class="proof-visualizer">
+                <div class="proof-box" id="secret-box">
+                    <h3>🤫 Your Secret</h3>
+                    <p>I know the password</p>
+                    <input type="password" placeholder="Enter secret" style="margin-top: 1rem; padding: 0.5rem; background: var(--dark); border: 1px solid var(--border); border-radius: 0.25rem; color: var(--text);">
+                </div>
+
+                <div class="arrow">→</div>
+
+                <div class="proof-box" id="proof-box">
+                    <h3>✅ ZK Proof</h3>
+                    <p>Proof generated!</p>
+                    <div class="loader" style="width: 30px; height: 30px;"></div>
+                </div>
+            </div>
+
+            <div style="text-align: center; margin-top: 2rem;">
+                <button class="connect-btn" onclick="startDemo()">Try Interactive Demo</button>
+            </div>
+        </div>
+    </section>
+
+    <!-- Games Section -->
+    <section class="games-section" id="games">
+        <h2 class="section-title">Featured Games</h2>
+        
+        <div class="games-grid">
+            <!-- Game 1: ZK Puzzle -->
+            <div class="game-card" onclick="openGame('puzzle')">
+                <div class="game-icon">🧩</div>
+                <h3 class="game-title">Proof Puzzle</h3>
+                <p class="game-description">
+                    Solve puzzles by generating valid proofs. Perfect for beginners learning ZK concepts.
+                </p>
+                <span class="difficulty difficulty-easy">Easy</span>
+            </div>
+
+            <!-- Game 2: Anonymous Poker -->
+            <div class="game-card" onclick="openGame('poker')">
+                <div class="game-icon">🃏</div>
+                <h3 class="game-title">Anonymous Poker</h3>
+                <p class="game-description">
+                    Play poker without revealing your cards until showdown. True ZK gaming experience.
+                </p>
+                <span class="difficulty difficulty-medium">Medium</span>
+            </div>
+
+            <!-- Game 3: Proof Racing -->
+            <div class="game-card" onclick="openGame('racing')">
+                <div class="game-icon">🏁</div>
+                <h3 class="game-title">Proof Racing</h3>
+                <p class="game-description">
+                    Race against time to generate proofs. Optimize your circuits for the fastest times.
+                </p>
+                <span class="difficulty difficulty-hard">Hard</span>
+            </div>
+
+            <!-- Game 4: ZK Sudoku Battle -->
+            <div class="game-card" onclick="openGame('sudoku')">
+                <div class="game-icon">🔢</div>
+                <h3 class="game-title">ZK Sudoku Battle</h3>
+                <p class="game-description">
+                    Compete in Sudoku battles where solutions are verified without revealing the grid.
+                </p>
+                <span class="difficulty difficulty-medium">Medium</span>
+            </div>
+
+            <!-- Game 5: Coming Soon -->
+            <div class="game-card" style="opacity: 0.6; cursor: not-allowed;">
+                <div class="game-icon">🎲</div>
+                <h3 class="game-title">Strategy Proofs</h3>
+                <p class="game-description">
+                    Coming soon! Advanced strategy game with hidden information mechanics.
+                </p>
+                <span class="difficulty difficulty-hard">Hard</span>
+            </div>
+
+            <!-- Game 6: Coming Soon -->
+            <div class="game-card" style="opacity: 0.6; cursor: not-allowed;">
+                <div class="game-icon">🗝️</div>
+                <h3 class="game-title">Treasure Hunt</h3>
+                <p class="game-description">
+                    Coming soon! Find hidden treasures using zero-knowledge clues.
+                </p>
+                <span class="difficulty difficulty-easy">Easy</span>
+            </div>
+        </div>
+    </section>
+
+    <!-- Stats Section -->
+    <section class="stats-section" id="stats">
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-number" id="active-players">1,247</div>
+                <div class="stat-label">Active Players</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" id="proofs-generated">48.3K</div>
+                <div class="stat-label">Proofs Generated</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" id="games-played">12.7K</div>
+                <div class="stat-label">Games Played</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" id="avg-proof-time">2.3s</div>
+                <div class="stat-label">Avg Proof Time</div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Modal for game launch -->
+    <div class="modal" id="gameModal">
+        <div class="modal-content">
+            <span class="close-modal" onclick="closeModal()">&times;</span>
+            <h2 id="modalTitle">Launch Game</h2>
+            <p id="modalDescription">Game description</p>
+            <div style="margin-top: 2rem; text-align: center;">
+                <button class="connect-btn" id="launchBtn">Launch Game</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Simulated wallet connection
+        let isConnected = false;
+
+        function connectWallet() {
+            const btn = document.querySelector('.connect-btn');
+            if (!isConnected) {
+                btn.textContent = 'Connecting...';
+                setTimeout(() => {
+                    btn.textContent = '0x1234...5678';
+                    isConnected = true;
+                }, 1500);
+            }
+        }
+
+        // Interactive demo
+        function startDemo() {
+            const secretBox = document.getElementById('secret-box');
+            const proofBox = document.getElementById('proof-box');
+            
+            secretBox.style.transform = 'scale(1.1)';
+            setTimeout(() => {
+                secretBox.style.transform = 'scale(1)';
+                proofBox.style.transform = 'scale(1.1)';
+                setTimeout(() => {
+                    proofBox.style.transform = 'scale(1)';
+                }, 500);
+            }, 500);
+        }
+
+        // Game launcher
+        function openGame(gameType) {
+            const modal = document.getElementById('gameModal');
+            const modalTitle = document.getElementById('modalTitle');
+            const modalDescription = document.getElementById('modalDescription');
+            const launchBtn = document.getElementById('launchBtn');
+
+            const gameInfo = {
+                puzzle: {
+                    title: 'Proof Puzzle',
+                    description: 'Learn ZK concepts by solving interactive puzzles. Each level teaches a new concept about zero-knowledge proofs.',
+                    action: () => window.open('#puzzle-game', '_blank')
+                },
+                poker: {
+                    title: 'Anonymous Poker',
+                    description: 'Play Texas Hold\'em where cards remain hidden using ZK proofs. Prove your hand without revealing it!',
+                    action: () => window.open('#poker-game', '_blank')
+                },
+                racing: {
+                    title: 'Proof Racing Championship',
+                    description: 'Compete globally to generate the fastest proofs. Optimize your circuits and climb the leaderboard!',
+                    action: () => window.open('#racing-game', '_blank')
+                },
+                sudoku: {
+                    title: 'ZK Sudoku Battle',
+                    description: 'Real-time Sudoku battles where solutions are verified without revealing your strategy.',
+                    action: () => window.open('#sudoku-game', '_blank')
+                }
+            };
+
+            const game = gameInfo[gameType];
+            modalTitle.textContent = game.title;
+            modalDescription.textContent = game.description;
+            launchBtn.onclick = game.action;
+
+            modal.style.display = 'flex';
+        }
+
+        function closeModal() {
+            document.getElementById('gameModal').style.display = 'none';
+        }
+
+        // Animate stats on scroll
+        function animateStats() {
+            const stats = document.querySelectorAll('.stat-number');
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        // Simulate real-time updates
+                        setInterval(() => {
+                            const current = parseFloat(entry.target.textContent.replace(/[^\d.]/g, ''));
+                            const increment = Math.random() * 10;
+                            entry.target.textContent = formatNumber(current + increment);
+                        }, 3000);
+                        observer.unobserve(entry.target);
+                    }
+                });
+            });
+
+            stats.forEach(stat => observer.observe(stat));
+        }
+
+        function formatNumber(num) {
+            if (num >= 1000) {
+                return (num / 1000).toFixed(1) + 'K';
+            }
+            return num.toFixed(1);
+        }
+
+        // Initialize animations
+        document.addEventListener('DOMContentLoaded', () => {
+            animateStats();
+            
+            // Smooth scrolling
+            document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+                anchor.addEventListener('click', function (e) {
+                    e.preventDefault();
+                    const target = document.querySelector(this.getAttribute('href'));
+                    if (target) {
+                        target.scrollIntoView({ behavior: 'smooth' });
+                    }
+                });
+            });
+        });
+
+        // Close modal on outside click
+        window.onclick = function(event) {
+            const modal = document.getElementById('gameModal');
+            if (event.target === modal) {
+                modal.style.display = 'none';
+            }
+        }
+    </script>
+</body>
+</html>

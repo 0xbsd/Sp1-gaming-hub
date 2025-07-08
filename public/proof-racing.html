@@ -1,0 +1,1117 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Proof Racing - Race to Generate ZK Proofs</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary: #6366f1;
+            --primary-dark: #4f46e5;
+            --secondary: #8b5cf6;
+            --accent: #10b981;
+            --error: #ef4444;
+            --warning: #f59e0b;
+            --dark: #0f172a;
+            --dark-lighter: #1e293b;
+            --dark-card: #334155;
+            --text: #e2e8f0;
+            --text-dim: #94a3b8;
+            --border: #475569;
+            --speed-1: #10b981;
+            --speed-2: #f59e0b;
+            --speed-3: #ef4444;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: var(--dark);
+            color: var(--text);
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        /* Racing Track Background */
+        .racing-bg {
+            position: fixed;
+            inset: 0;
+            background: 
+                linear-gradient(90deg, transparent 49%, var(--border) 50%, transparent 51%),
+                linear-gradient(180deg, var(--dark) 0%, var(--dark-lighter) 100%);
+            background-size: 100px 100%, 100% 100%;
+            animation: trackMove 2s linear infinite;
+            opacity: 0.3;
+            z-index: -1;
+        }
+
+        @keyframes trackMove {
+            to {
+                background-position: 100px 0, 0 0;
+            }
+        }
+
+        /* Header */
+        .game-header {
+            background: rgba(30, 41, 59, 0.9);
+            backdrop-filter: blur(10px);
+            border-bottom: 2px solid var(--border);
+            padding: 1.5rem 2rem;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .header-content {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+
+        .game-title {
+            font-size: 2rem;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .race-stats {
+            display: flex;
+            gap: 2rem;
+            align-items: center;
+        }
+
+        .stat-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .stat-label {
+            font-size: 0.875rem;
+            color: var(--text-dim);
+        }
+
+        .stat-value {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: var(--primary);
+        }
+
+        /* Main Container */
+        .main-container {
+            max-width: 1400px;
+            margin: 2rem auto;
+            padding: 0 2rem;
+            display: grid;
+            grid-template-columns: 1fr 300px;
+            gap: 2rem;
+        }
+
+        /* Race Track */
+        .race-track {
+            background: var(--dark-lighter);
+            border: 2px solid var(--border);
+            border-radius: 1rem;
+            padding: 2rem;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .track-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+        }
+
+        .difficulty-selector {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .diff-btn {
+            padding: 0.5rem 1rem;
+            background: var(--dark-card);
+            border: 2px solid var(--border);
+            border-radius: 0.5rem;
+            color: var(--text);
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .diff-btn.active {
+            background: rgba(99, 102, 241, 0.2);
+            border-color: var(--primary);
+        }
+
+        /* Racing Lanes */
+        .racing-lanes {
+            position: relative;
+            margin-bottom: 2rem;
+        }
+
+        .race-lane {
+            background: var(--dark-card);
+            border: 2px solid var(--border);
+            border-radius: 0.5rem;
+            margin-bottom: 1rem;
+            padding: 1rem;
+            position: relative;
+            overflow: hidden;
+            height: 80px;
+            display: flex;
+            align-items: center;
+        }
+
+        .race-lane::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            width: var(--progress, 0%);
+            background: linear-gradient(90deg, var(--primary), var(--secondary));
+            opacity: 0.2;
+            transition: width 0.3s ease;
+        }
+
+        .racer-icon {
+            position: absolute;
+            font-size: 2rem;
+            left: var(--progress, 0%);
+            transform: translateX(-50%);
+            transition: left 0.3s ease;
+            z-index: 2;
+            animation: bounce 1s ease infinite;
+        }
+
+        @keyframes bounce {
+            0%, 100% { transform: translateX(-50%) translateY(0); }
+            50% { transform: translateX(-50%) translateY(-5px); }
+        }
+
+        .racer-info {
+            position: relative;
+            z-index: 1;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            width: 100%;
+        }
+
+        .racer-name {
+            font-weight: 600;
+            font-size: 1.1rem;
+        }
+
+        .racer-speed {
+            font-size: 0.875rem;
+            color: var(--text-dim);
+        }
+
+        .finish-line {
+            position: absolute;
+            right: 20px;
+            top: 0;
+            bottom: 0;
+            width: 2px;
+            background: repeating-linear-gradient(
+                0deg,
+                var(--text),
+                var(--text) 5px,
+                transparent 5px,
+                transparent 10px
+            );
+        }
+
+        /* Challenge Section */
+        .challenge-section {
+            background: var(--dark-card);
+            border: 2px solid var(--border);
+            border-radius: 0.5rem;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .challenge-title {
+            font-size: 1.2rem;
+            color: var(--primary);
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .challenge-content {
+            background: var(--dark);
+            border-radius: 0.5rem;
+            padding: 1rem;
+            margin-bottom: 1rem;
+            font-family: monospace;
+        }
+
+        .input-section {
+            display: flex;
+            gap: 1rem;
+            align-items: flex-end;
+        }
+
+        .input-group {
+            flex: 1;
+        }
+
+        .input-label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-size: 0.875rem;
+            color: var(--text-dim);
+        }
+
+        .input-field {
+            width: 100%;
+            padding: 0.75rem;
+            background: var(--dark);
+            border: 2px solid var(--border);
+            border-radius: 0.5rem;
+            color: var(--text);
+            font-family: monospace;
+            transition: all 0.3s;
+        }
+
+        .input-field:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+        }
+
+        /* Control Buttons */
+        .control-section {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+        }
+
+        .btn {
+            padding: 0.75rem 2rem;
+            border: none;
+            border-radius: 0.5rem;
+            font-size: 1rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .btn-primary {
+            background: var(--primary);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: var(--primary-dark);
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(99, 102, 241, 0.3);
+        }
+
+        .btn-secondary {
+            background: transparent;
+            color: var(--text);
+            border: 2px solid var(--border);
+        }
+
+        .btn-secondary:hover {
+            border-color: var(--primary);
+        }
+
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        /* Side Panel */
+        .side-panel {
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+
+        .panel-card {
+            background: var(--dark-lighter);
+            border: 2px solid var(--border);
+            border-radius: 1rem;
+            padding: 1.5rem;
+        }
+
+        .panel-card h3 {
+            font-size: 1.2rem;
+            color: var(--primary);
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        /* Leaderboard */
+        .leaderboard-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.75rem;
+            background: var(--dark-card);
+            border-radius: 0.5rem;
+            margin-bottom: 0.5rem;
+            transition: all 0.3s;
+        }
+
+        .leaderboard-item:hover {
+            transform: translateX(5px);
+        }
+
+        .leaderboard-rank {
+            font-weight: bold;
+            color: var(--primary);
+            min-width: 30px;
+        }
+
+        .leaderboard-name {
+            flex: 1;
+            margin: 0 1rem;
+        }
+
+        .leaderboard-time {
+            font-family: monospace;
+            color: var(--accent);
+        }
+
+        /* Speed Gauge */
+        .speed-gauge {
+            width: 200px;
+            height: 100px;
+            margin: 0 auto;
+            position: relative;
+        }
+
+        .gauge-arc {
+            width: 100%;
+            height: 100%;
+            border: 10px solid var(--dark-card);
+            border-bottom: none;
+            border-radius: 100px 100px 0 0;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .gauge-fill {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            background: conic-gradient(
+                from 180deg,
+                var(--speed-1) 0deg,
+                var(--speed-2) 60deg,
+                var(--speed-3) 120deg
+            );
+            transform-origin: bottom center;
+            transform: rotate(var(--rotation, -90deg));
+            transition: transform 0.3s ease;
+        }
+
+        .gauge-needle {
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            width: 4px;
+            height: 80px;
+            background: var(--text);
+            transform-origin: bottom;
+            transform: translateX(-50%) rotate(var(--rotation, -90deg));
+            transition: transform 0.3s ease;
+        }
+
+        .gauge-value {
+            position: absolute;
+            bottom: -30px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 1.5rem;
+            font-weight: bold;
+        }
+
+        /* Success Modal */
+        .modal {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.8);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            padding: 2rem;
+        }
+
+        .modal.show {
+            display: flex;
+        }
+
+        .modal-content {
+            background: var(--dark-lighter);
+            border: 2px solid var(--accent);
+            border-radius: 1rem;
+            padding: 3rem;
+            text-align: center;
+            max-width: 500px;
+            animation: modalZoom 0.3s ease;
+        }
+
+        @keyframes modalZoom {
+            from {
+                transform: scale(0.8);
+                opacity: 0;
+            }
+            to {
+                transform: scale(1);
+                opacity: 1;
+            }
+        }
+
+        /* Mobile Responsive */
+        @media (max-width: 968px) {
+            .main-container {
+                grid-template-columns: 1fr;
+            }
+
+            .race-stats {
+                flex-wrap: wrap;
+                gap: 1rem;
+            }
+        }
+
+        /* Particles Effect */
+        .particles {
+            position: absolute;
+            inset: 0;
+            pointer-events: none;
+            overflow: hidden;
+        }
+
+        .particle {
+            position: absolute;
+            width: 4px;
+            height: 4px;
+            background: var(--primary);
+            border-radius: 50%;
+            animation: particleFly 2s linear;
+        }
+
+        @keyframes particleFly {
+            from {
+                transform: translateX(0) translateY(0);
+                opacity: 1;
+            }
+            to {
+                transform: translateX(-100px) translateY(random(-50px, 50px));
+                opacity: 0;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Racing Background -->
+    <div class="racing-bg"></div>
+
+    <!-- Header -->
+    <header class="game-header">
+        <div class="header-content">
+            <h1 class="game-title">
+                <span>🏁</span>
+                <span>Proof Racing Championship</span>
+            </h1>
+            
+            <div class="race-stats">
+                <div class="stat-item">
+                    <span class="stat-label">Best Time</span>
+                    <span class="stat-value" id="bestTime">--:--</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-label">Races Won</span>
+                    <span class="stat-value" id="racesWon">0</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-label">ZK Points</span>
+                    <span class="stat-value" id="totalPoints">0</span>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Container -->
+    <div class="main-container">
+        <!-- Race Track -->
+        <main class="race-track">
+            <div class="track-header">
+                <h2 style="font-size: 1.5rem;">Current Race</h2>
+                <div class="difficulty-selector">
+                    <button class="diff-btn active" onclick="setDifficulty('sprint')">Sprint</button>
+                    <button class="diff-btn" onclick="setDifficulty('circuit')">Circuit</button>
+                    <button class="diff-btn" onclick="setDifficulty('endurance')">Endurance</button>
+                </div>
+            </div>
+
+            <!-- Racing Lanes -->
+            <div class="racing-lanes">
+                <div class="race-lane" id="playerLane">
+                    <div class="racer-icon" style="--progress: 0%">🏎️</div>
+                    <div class="racer-info">
+                        <span class="racer-name">You</span>
+                        <span class="racer-speed" id="playerSpeed">0 proofs/s</span>
+                    </div>
+                </div>
+                
+                <div class="race-lane" id="aiLane1">
+                    <div class="racer-icon" style="--progress: 0%">🚗</div>
+                    <div class="racer-info">
+                        <span class="racer-name">ZK Bot Alpha</span>
+                        <span class="racer-speed" id="ai1Speed">0 proofs/s</span>
+                    </div>
+                </div>
+                
+                <div class="race-lane" id="aiLane2">
+                    <div class="racer-icon" style="--progress: 0%">🚙</div>
+                    <div class="racer-info">
+                        <span class="racer-name">Proof Master</span>
+                        <span class="racer-speed" id="ai2Speed">0 proofs/s</span>
+                    </div>
+                </div>
+                
+                <div class="finish-line"></div>
+                <div class="particles" id="particles"></div>
+            </div>
+
+            <!-- Challenge Section -->
+            <div class="challenge-section">
+                <h3 class="challenge-title">
+                    <span>🧩</span>
+                    <span>Current Challenge</span>
+                </h3>
+                
+                <div class="challenge-content" id="challengeContent">
+                    Prove that you know the solution to: <strong>x² + 5x + 6 = 0</strong>
+                </div>
+
+                <div class="input-section">
+                    <div class="input-group">
+                        <label class="input-label">Your Solution</label>
+                        <input type="text" class="input-field" id="solutionInput" placeholder="Enter your answer">
+                    </div>
+                    <button class="btn btn-primary" onclick="generateProof()" id="proofBtn">
+                        <span>⚡</span>
+                        <span>Generate Proof</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Control Section -->
+            <div class="control-section">
+                <button class="btn btn-secondary" onclick="startRace()" id="startBtn">
+                    <span>🏁</span>
+                    <span>Start Race</span>
+                </button>
+                <button class="btn btn-secondary" onclick="resetRace()">
+                    <span>🔄</span>
+                    <span>New Race</span>
+                </button>
+            </div>
+        </main>
+
+        <!-- Side Panel -->
+        <aside class="side-panel">
+            <!-- Speed Gauge -->
+            <div class="panel-card">
+                <h3>
+                    <span>⚡</span>
+                    <span>Proof Speed</span>
+                </h3>
+                <div class="speed-gauge">
+                    <div class="gauge-arc">
+                        <div class="gauge-fill" style="--rotation: -90deg"></div>
+                    </div>
+                    <div class="gauge-needle" style="--rotation: -90deg"></div>
+                    <div class="gauge-value" id="speedValue">0</div>
+                </div>
+                <p style="text-align: center; margin-top: 1rem; color: var(--text-dim); font-size: 0.875rem;">
+                    Proofs per second
+                </p>
+            </div>
+
+            <!-- Leaderboard -->
+            <div class="panel-card">
+                <h3>
+                    <span>🏆</span>
+                    <span>Track Records</span>
+                </h3>
+                <div id="leaderboard">
+                    <div class="leaderboard-item">
+                        <span class="leaderboard-rank">1</span>
+                        <span class="leaderboard-name">Speed Demon</span>
+                        <span class="leaderboard-time">00:45</span>
+                    </div>
+                    <div class="leaderboard-item">
+                        <span class="leaderboard-rank">2</span>
+                        <span class="leaderboard-name">ZK Flash</span>
+                        <span class="leaderboard-time">00:52</span>
+                    </div>
+                    <div class="leaderboard-item">
+                        <span class="leaderboard-rank">3</span>
+                        <span class="leaderboard-name">Proof Runner</span>
+                        <span class="leaderboard-time">01:03</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tips -->
+            <div class="panel-card">
+                <h3>
+                    <span>💡</span>
+                    <span>Racing Tips</span>
+                </h3>
+                <ul style="list-style: none; font-size: 0.875rem; color: var(--text-dim); line-height: 1.8;">
+                    <li>⚡ Solve quickly for speed bonus</li>
+                    <li>🎯 Accuracy matters - wrong answers slow you down</li>
+                    <li>🏁 Complete all challenges to win</li>
+                    <li>🔥 Chain correct answers for combo multiplier</li>
+                </ul>
+            </div>
+        </aside>
+    </div>
+
+    <!-- Victory Modal -->
+    <div class="modal" id="victoryModal">
+        <div class="modal-content">
+            <h2 style="font-size: 2.5rem; margin-bottom: 1rem;">🏆 Victory!</h2>
+            <p style="color: var(--text-dim); margin-bottom: 2rem;">
+                You've won the ZK Proof Racing Championship!
+            </p>
+            
+            <div style="background: var(--dark); padding: 1.5rem; border-radius: 0.5rem; margin-bottom: 2rem;">
+                <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 1rem; text-align: left;">
+                    <div>
+                        <div style="color: var(--text-dim); font-size: 0.875rem;">Race Time</div>
+                        <div style="font-size: 1.5rem; color: var(--primary);" id="raceTime">00:00</div>
+                    </div>
+                    <div>
+                        <div style="color: var(--text-dim); font-size: 0.875rem;">Position</div>
+                        <div style="font-size: 1.5rem; color: var(--accent);" id="position">1st</div>
+                    </div>
+                    <div>
+                        <div style="color: var(--text-dim); font-size: 0.875rem;">Proofs Generated</div>
+                        <div style="font-size: 1.5rem; color: var(--warning);" id="proofsGenerated">0</div>
+                    </div>
+                    <div>
+                        <div style="color: var(--text-dim); font-size: 0.875rem;">Points Earned</div>
+                        <div style="font-size: 1.5rem; color: var(--primary);" id="pointsEarned">0</div>
+                    </div>
+                </div>
+            </div>
+
+            <button class="btn btn-primary" onclick="closeModal()" style="width: 100%;">
+                <span>Race Again</span>
+                <span>🏁</span>
+            </button>
+        </div>
+    </div>
+
+    <script>
+        // Game State
+        let gameState = {
+            difficulty: 'sprint',
+            isRacing: false,
+            raceStartTime: 0,
+            playerProgress: 0,
+            ai1Progress: 0,
+            ai2Progress: 0,
+            currentChallenge: 0,
+            proofCount: 0,
+            totalPoints: 0,
+            racesWon: 0,
+            bestTime: null,
+            combo: 0
+        };
+
+        // Challenges
+        const challenges = {
+            sprint: [
+                { question: "x² + 5x + 6 = 0", answer: "-2", hint: "Factor: (x+2)(x+3)" },
+                { question: "2x + 8 = 20", answer: "6", hint: "Isolate x" },
+        // Challenges
+        const challenges = {
+            sprint: [
+                { question: "x² + 5x + 6 = 0", answer: ["-2", "-3"], hint: "Factor: (x+2)(x+3)" },
+                { question: "2x + 8 = 20", answer: ["6"], hint: "Isolate x" },
+                { question: "x³ = 27", answer: ["3"], hint: "Cube root" },
+                { question: "√x = 4", answer: ["16"], hint: "Square both sides" },
+                { question: "5x - 15 = 0", answer: ["3"], hint: "Simple algebra" }
+            ],
+            circuit: [
+                { question: "x² - 7x + 12 = 0", answer: ["3", "4"], hint: "Factor or quadratic formula" },
+                { question: "log₂(x) = 3", answer: ["8"], hint: "2³ = ?" },
+                { question: "3ˣ = 81", answer: ["4"], hint: "81 = 3⁴" },
+                { question: "x² + x - 12 = 0", answer: ["3", "-4"], hint: "Factor: (x+4)(x-3)" },
+                { question: "2x² = 32", answer: ["4", "-4"], hint: "Divide then square root" },
+                { question: "|x - 5| = 3", answer: ["8", "2"], hint: "Two solutions: x-5=3 or x-5=-3" },
+                { question: "x! = 24", answer: ["4"], hint: "4! = 4×3×2×1" }
+            ],
+            endurance: [
+                { question: "x³ - 6x² + 11x - 6 = 0", answer: ["1", "2", "3"], hint: "Try x=1,2,3" },
+                { question: "Find x: Fibonacci(x) = 13", answer: ["7"], hint: "Count: 1,1,2,3,5,8,13" },
+                { question: "x² + y² = 25, y = 3, x > 0", answer: ["4"], hint: "Pythagorean" },
+                { question: "2ˣ + 2ˣ⁺¹ = 48", answer: ["4"], hint: "Factor out 2ˣ" },
+                { question: "sin(x) = 1, x in degrees", answer: ["90"], hint: "Quarter circle" },
+                { question: "x is prime, 10 < x < 15", answer: ["11", "13"], hint: "11 or 13" },
+                { question: "GCD(x, 35) = 7, x < 20", answer: ["7", "14"], hint: "Multiples of 7" },
+                { question: "x² - 10x + 25 = 0", answer: ["5"], hint: "Perfect square" },
+                { question: "Sum of digits of x = 9, 45 < x < 55", answer: ["45", "54"], hint: "4+5=9 or 5+4=9" },
+                { question: "x mod 7 = 3, 15 < x < 25", answer: ["17", "24"], hint: "17=2×7+3, 24=3×7+3" }
+            ]
+        };
+
+        // AI racers configuration
+        const aiRacers = {
+            ai1: { 
+                name: "ZK Bot Alpha", 
+                baseSpeed: 0.8, 
+                variance: 0.2,
+                element: 'aiLane1'
+            },
+            ai2: { 
+                name: "Proof Master", 
+                baseSpeed: 0.9, 
+                variance: 0.15,
+                element: 'aiLane2'
+            }
+        };
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', () => {
+            updateStats();
+            loadLeaderboard();
+        });
+
+        // Start race
+        function startRace() {
+            if (gameState.isRacing) return;
+            
+            gameState.isRacing = true;
+            gameState.raceStartTime = Date.now();
+            gameState.playerProgress = 0;
+            gameState.ai1Progress = 0;
+            gameState.ai2Progress = 0;
+            gameState.currentChallenge = 0;
+            gameState.proofCount = 0;
+            gameState.combo = 0;
+            
+            document.getElementById('startBtn').disabled = true;
+            document.getElementById('proofBtn').disabled = false;
+            document.getElementById('solutionInput').disabled = false;
+            document.getElementById('solutionInput').focus();
+            
+            loadNextChallenge();
+            startAIRacers();
+            updateRaceProgress();
+        }
+
+        // Load next challenge
+        function loadNextChallenge() {
+            const challengeSet = challenges[gameState.difficulty];
+            if (gameState.currentChallenge >= challengeSet.length) {
+                finishRace(true);
+                return;
+            }
+            
+            const challenge = challengeSet[gameState.currentChallenge];
+            document.getElementById('challengeContent').innerHTML = 
+                `Prove that you know the solution to: <strong>${challenge.question}</strong>`;
+            document.getElementById('solutionInput').value = '';
+        }
+
+        // Generate proof
+        function generateProof() {
+            if (!gameState.isRacing) return;
+            
+            const input = document.getElementById('solutionInput').value.trim();
+            const challengeSet = challenges[gameState.difficulty];
+            const challenge = challengeSet[gameState.currentChallenge];
+            
+            // Check if input matches any of the valid answers
+            const isCorrect = challenge.answer.includes(input);
+            
+            if (isCorrect) {
+                // Correct answer
+                correctAnswer();
+            } else {
+                // Wrong answer
+                wrongAnswer();
+            }
+        }
+
+        // Correct answer
+        function correctAnswer() {
+            gameState.proofCount++;
+            gameState.combo++;
+            
+            // Update progress
+            const totalChallenges = challenges[gameState.difficulty].length;
+            gameState.playerProgress = ((gameState.currentChallenge + 1) / totalChallenges) * 100;
+            
+            // Visual feedback
+            createParticles();
+            updateSpeed();
+            
+            // Move to next challenge
+            gameState.currentChallenge++;
+            
+            if (gameState.currentChallenge >= totalChallenges) {
+                finishRace(true);
+            } else {
+                loadNextChallenge();
+            }
+            
+            updateRaceProgress();
+        }
+
+        // Wrong answer
+        function wrongAnswer() {
+            gameState.combo = 0;
+            
+            // Visual feedback
+            const inputField = document.getElementById('solutionInput');
+            inputField.style.borderColor = 'var(--error)';
+            setTimeout(() => {
+                inputField.style.borderColor = '';
+            }, 1000);
+            
+            // Show hint
+            const challenge = challenges[gameState.difficulty][gameState.currentChallenge];
+            const challengeContent = document.getElementById('challengeContent');
+            if (!challengeContent.innerHTML.includes('Hint:')) {
+                challengeContent.innerHTML += 
+                    `<br><small style="color: var(--warning)">Hint: ${challenge.hint}</small>`;
+            }
+        }
+
+        // Update race progress
+        function updateRaceProgress() {
+            // Update player lane
+            const playerLane = document.getElementById('playerLane');
+            playerLane.style.setProperty('--progress', `${gameState.playerProgress}%`);
+            playerLane.querySelector('.racer-icon').style.setProperty('--progress', `${gameState.playerProgress}%`);
+            
+            // Update AI lanes
+            const ai1Lane = document.getElementById('aiLane1');
+            ai1Lane.style.setProperty('--progress', `${gameState.ai1Progress}%`);
+            ai1Lane.querySelector('.racer-icon').style.setProperty('--progress', `${gameState.ai1Progress}%`);
+            
+            const ai2Lane = document.getElementById('aiLane2');
+            ai2Lane.style.setProperty('--progress', `${gameState.ai2Progress}%`);
+            ai2Lane.querySelector('.racer-icon').style.setProperty('--progress', `${gameState.ai2Progress}%`);
+        }
+
+        // Start AI racers
+        function startAIRacers() {
+            const updateAI = () => {
+                if (!gameState.isRacing) return;
+                
+                // Update AI 1
+                const ai1Speed = aiRacers.ai1.baseSpeed + (Math.random() - 0.5) * aiRacers.ai1.variance;
+                gameState.ai1Progress = Math.min(gameState.ai1Progress + ai1Speed, 100);
+                
+                // Update AI 2
+                const ai2Speed = aiRacers.ai2.baseSpeed + (Math.random() - 0.5) * aiRacers.ai2.variance;
+                gameState.ai2Progress = Math.min(gameState.ai2Progress + ai2Speed, 100);
+                
+                // Update speed displays
+                document.getElementById('ai1Speed').textContent = `${(ai1Speed * 10).toFixed(1)} proofs/s`;
+                document.getElementById('ai2Speed').textContent = `${(ai2Speed * 10).toFixed(1)} proofs/s`;
+                
+                updateRaceProgress();
+                
+                // Check if any AI finished
+                if (gameState.ai1Progress >= 100 || gameState.ai2Progress >= 100) {
+                    if (gameState.playerProgress < 100) {
+                        finishRace(false);
+                    }
+                } else {
+                    setTimeout(updateAI, 100);
+                }
+            };
+            
+            updateAI();
+        }
+
+        // Update speed gauge
+        function updateSpeed() {
+            const speed = Math.min(gameState.combo * 2, 10);
+            const rotation = -90 + (speed / 10) * 180;
+            
+            document.querySelector('.gauge-fill').style.setProperty('--rotation', `${rotation}deg`);
+            document.querySelector('.gauge-needle').style.setProperty('--rotation', `${rotation}deg`);
+            document.getElementById('speedValue').textContent = speed.toFixed(1);
+            document.getElementById('playerSpeed').textContent = `${speed.toFixed(1)} proofs/s`;
+        }
+
+        // Finish race
+        function finishRace(won) {
+            gameState.isRacing = false;
+            
+            const raceTime = Math.floor((Date.now() - gameState.raceStartTime) / 1000);
+            const position = won ? 1 : (gameState.ai1Progress > gameState.ai2Progress ? 3 : 2);
+            
+            // Calculate points
+            let points = 0;
+            if (won) {
+                points = 1000 - (raceTime * 5); // Base points minus time penalty
+                points += gameState.combo * 50; // Combo bonus
+                points = Math.max(points, 100); // Minimum points
+                
+                gameState.racesWon++;
+                
+                // Update best time
+                if (!gameState.bestTime || raceTime < gameState.bestTime) {
+                    gameState.bestTime = raceTime;
+                }
+            }
+            
+            gameState.totalPoints += points;
+            
+            // Show results
+            const minutes = Math.floor(raceTime / 60);
+            const seconds = raceTime % 60;
+            document.getElementById('raceTime').textContent = 
+                `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+            document.getElementById('position').textContent = 
+                position === 1 ? '1st' : position === 2 ? '2nd' : '3rd';
+            document.getElementById('proofsGenerated').textContent = gameState.proofCount;
+            document.getElementById('pointsEarned').textContent = points;
+            
+            updateStats();
+            
+            setTimeout(() => {
+                document.getElementById('victoryModal').classList.add('show');
+            }, 1000);
+        }
+
+        // Create particle effects
+        function createParticles() {
+            const container = document.getElementById('particles');
+            const rect = document.getElementById('playerLane').getBoundingClientRect();
+            
+            for (let i = 0; i < 10; i++) {
+                const particle = document.createElement('div');
+                particle.className = 'particle';
+                particle.style.left = `${gameState.playerProgress}%`;
+                particle.style.top = '40px';
+                particle.style.animationDelay = `${i * 0.1}s`;
+                container.appendChild(particle);
+                
+                setTimeout(() => particle.remove(), 2000);
+            }
+        }
+
+        // Set difficulty
+        function setDifficulty(diff) {
+            if (gameState.isRacing) return; // Don't allow changing during race
+            
+            gameState.difficulty = diff;
+            
+            document.querySelectorAll('.diff-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            event.target.classList.add('active');
+            
+            resetRace();
+        }
+
+        // Reset race
+        function resetRace() {
+            gameState.isRacing = false;
+            gameState.playerProgress = 0;
+            gameState.ai1Progress = 0;
+            gameState.ai2Progress = 0;
+            gameState.currentChallenge = 0;
+            gameState.proofCount = 0;
+            gameState.combo = 0;
+            
+            document.getElementById('startBtn').disabled = false;
+            document.getElementById('proofBtn').disabled = true;
+            document.getElementById('solutionInput').disabled = true;
+            document.getElementById('solutionInput').value = '';
+            document.getElementById('challengeContent').innerHTML = 'Press "Start Race" to begin!';
+            
+            // Clear any particles
+            document.getElementById('particles').innerHTML = '';
+            
+            updateRaceProgress();
+            updateSpeed();
+        }
+
+        // Update stats
+        function updateStats() {
+            document.getElementById('racesWon').textContent = gameState.racesWon;
+            document.getElementById('totalPoints').textContent = gameState.totalPoints;
+            
+            if (gameState.bestTime) {
+                const minutes = Math.floor(gameState.bestTime / 60);
+                const seconds = gameState.bestTime % 60;
+                document.getElementById('bestTime').textContent = 
+                    `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+            }
+        }
+
+        // Load leaderboard
+        function loadLeaderboard() {
+            // This would load from backend in production
+            const records = [
+                { name: "Speed Demon", time: 45 },
+                { name: "ZK Flash", time: 52 },
+                { name: "Proof Runner", time: 63 }
+            ];
+            
+            const leaderboard = document.getElementById('leaderboard');
+            leaderboard.innerHTML = records.map((record, i) => `
+                <div class="leaderboard-item">
+                    <span class="leaderboard-rank">${i + 1}</span>
+                    <span class="leaderboard-name">${record.name}</span>
+                    <span class="leaderboard-time">00:${record.time.toString().padStart(2, '0')}</span>
+                </div>
+            `).join('');
+        }
+
+        // Close modal
+        function closeModal() {
+            document.getElementById('victoryModal').classList.remove('show');
+            resetRace();
+        }
+
+        // Keyboard support
+        document.getElementById('solutionInput').addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                generateProof();
+            }
+        });
+    </script>
+</body>
+</html>
