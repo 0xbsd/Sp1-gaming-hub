@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ZK Gaming Hub - Games Menu</title>
+    <link rel="stylesheet" href="/css/styles.css">
     <style>
         * {
             margin: 0;
@@ -539,6 +540,15 @@
                 </div>
             </div>
         </section>
+       
+<!-- Add this to the navigation in games.html -->
+<div class="nav-links">
+  <a href="/games" class="nav-link">Games</a>
+  <a href="/profile" class="nav-link">Profile</a>
+  <a href="/coming-soon" class="nav-link">Coming Soon</a>
+  <button class="logout-btn" onclick="zkAPI.auth.logout()">Logout</button>
+</div>
+
 
         <!-- Coming Soon Section -->
         <section class="coming-soon-section">
