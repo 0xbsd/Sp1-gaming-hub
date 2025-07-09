@@ -1,10 +1,7 @@
 {
   "rewrites": [
-    { "source": "/login", "destination": "/login.html" },
-    { "source": "/onboarding", "destination": "/onboarding.html" },
+    { "source": "/", "destination": "/index.html" },
     { "source": "/games", "destination": "/games.html" },
-    { "source": "/home", "destination": "/index.html" },
-    { "source": "/hub", "destination": "/index.html" },
     { "source": "/proof-puzzle", "destination": "/proof-puzzle.html" },
     { "source": "/zk-sudoku", "destination": "/sudoku-game.html" },
     { "source": "/memory-matrix", "destination": "/memory-matrix.html" },
