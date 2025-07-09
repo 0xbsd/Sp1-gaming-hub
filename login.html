@@ -6,6 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ZK Gaming Hub - Succinct Network Login</title>
     <link rel="stylesheet" href="css/styles.css">
+    <script src="js/auth-flow.js"></script>
     <style>
         * {
             margin: 0;
@@ -835,6 +836,16 @@
             localStorage.setItem('zkGamingToken', token);
             localStorage.setItem('succinctVerified', 'true');
             
+            // Save user data
+            const userData = {
+                address: loginState.walletAddress,
+                github: loginState.githubUsername,
+                hasApiKey: !!loginState.apiKey,
+                zkPoints: 100, // Starting points
+                timestamp: Date.now()
+            };
+            localStorage.setItem('zkUser', JSON.stringify(userData));
+            
             updateStep(3, 'completed', 'Access token created');
             
             // Show success
@@ -924,40 +935,46 @@
 
         // Show Success
         function showSuccess() {
-    document.getElementById('successOverlay').classList.add('show');
-    
-    // Check if user needs onboarding
-    const hasCompletedOnboarding = localStorage.getItem('zkOnboardingComplete');
-    
-    // Redirect after 2 seconds
-    setTimeout(() => {
-        if (hasCompletedOnboarding === 'true') {
-            window.location.href = '/games';
-        } else {
-            window.location.href = '/onboarding';
+            document.getElementById('successOverlay').classList.add('show');
+            
+            // Check if user needs onboarding
+            const hasCompletedOnboarding = localStorage.getItem('zkOnboardingComplete');
+            
+            // Redirect after 2 seconds
+            setTimeout(() => {
+                if (hasCompletedOnboarding === 'true') {
+                    window.location.href = '/games';
+                } else {
+                    window.location.href = '/onboarding';
+                }
+            }, 2000);
         }
-    }, 2000);
-}
 
         // Check if already verified
         document.addEventListener('DOMContentLoaded', () => {
-            if (localStorage.getItem('succinctVerified') === 'true') {
-                // Auto-redirect if already verified
-                showSuccess();
+            // The auth-flow.js will handle redirect if already authenticated
+            // But we can also check here for immediate redirect
+            const isAuthenticated = localStorage.getItem('zkGamingToken');
+            const isVerified = localStorage.getItem('succinctVerified');
+            
+            if (isAuthenticated && isVerified === 'true') {
+                // Let auth-flow.js handle the redirect
+                console.log('User already authenticated, redirecting...');
             }
         });
-        // Basic error handling
-window.addEventListener('error', function(e) {
-  console.error('Script error:', e.error);
-});
 
-// Handle missing functions gracefully
-function handleMissingAPI() {
-  if (typeof zkAPI === 'undefined') {
-    console.warn('API not available, using mock data');
-    // Initialize mock API
-  }
-}
+        // Basic error handling
+        window.addEventListener('error', function(e) {
+            console.error('Script error:', e.error);
+        });
+
+        // Handle missing functions gracefully
+        function handleMissingAPI() {
+            if (typeof zkAPI === 'undefined') {
+                console.warn('API not available, using mock data');
+                // Initialize mock API
+            }
+        }
 
         // Add some helpful console messages
         console.log('%c🎮 ZK Gaming Hub', 'font-size: 20px; color: #6366f1; font-weight: bold;');
