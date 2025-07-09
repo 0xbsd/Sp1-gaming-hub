@@ -1,8 +1,5 @@
 {
-  "cleanUrls": true,
-  "trailingSlash": false,
   "rewrites": [
-    { "source": "/", "destination": "/index.html" },
     { "source": "/login", "destination": "/login.html" },
     { "source": "/onboarding", "destination": "/onboarding.html" },
     { "source": "/games", "destination": "/games.html" },
@@ -13,5 +10,7 @@
     { "source": "/memory-matrix", "destination": "/memory-matrix.html" },
     { "source": "/proof-racing", "destination": "/proof-racing.html" },
     { "source": "/coming-soon", "destination": "/coming-soon.html" }
-  ]
+  ],
+  "cleanUrls": true,
+  "trailingSlash": false
 }
