@@ -1351,7 +1351,12 @@ window.zkAPI = window.zkAPI || {
             originalCompleteOnboarding();
         }
     };
-    
+    // After onboarding completion
+function completeOnboarding() {
+    localStorage.setItem('zkOnboardingComplete', 'true');
+    // Redirect to games hub
+    window.location.href = '/games';
+}
     // Update enterHub function to go to games page
     enterHub = function() {
         window.location.href = '/games';
@@ -1368,6 +1373,19 @@ function handleMissingAPI() {
     // Initialize mock API
   }
 }
+// In onboarding.html
+document.addEventListener('DOMContentLoaded', () => {
+    const hasCompletedOnboarding = localStorage.getItem('zkOnboardingComplete');
+    
+    if (hasCompletedOnboarding === 'true') {
+        // User already onboarded, redirect to games
+        window.location.href = '/games';
+        return;
+    }
+    
+    // Continue with onboarding...
+    initializeOnboarding();
+});
 </script>
 `;
 </body>

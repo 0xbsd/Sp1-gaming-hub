@@ -1,13 +1,14 @@
 {
   "routes": [
-    { "src": "/", "dest": "/index.html" },
+    { "src": "/", "dest": "/onboarding.html" },
+    { "src": "/home", "dest": "/index.html" },
     { "src": "/login", "dest": "/login.html" },
     { "src": "/onboarding", "dest": "/onboarding.html" }, 
     { "src": "/games", "dest": "/games.html" },
-    { "src": "/games/proof-puzzle", "dest": "/proof-puzzle.html" },
-    { "src": "/games/zk-sudoku", "dest": "/zk-sudoku.html" },
-    { "src": "/games/memory-matrix", "dest": "/memory-matrix.html" },
-    { "src": "/games/proof-racing", "dest": "/proof-racing.html" },
+    { "src": "/proof-puzzle", "dest": "/proof-puzzle.html" },
+    { "src": "/zk-sudoku", "dest": "/zk-sudoku.html" },
+    { "src": "/memory-matrix", "dest": "/memory-matrix.html" },
+    { "src": "/proof-racing", "dest": "/proof-racing.html" },
     { "src": "/coming-soon", "dest": "/coming-soon.html" }
   ],
   "rewrites": [
