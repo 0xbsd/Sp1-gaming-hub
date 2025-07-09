@@ -1,4 +1,4 @@
-// js/auth-flow.js - Complete Authentication Flow Management
+// js/auth-flow.js - Updated with .html extensions for Vercel
 
 class AuthFlow {
     constructor() {
@@ -6,7 +6,6 @@ class AuthFlow {
     }
 
     init() {
-        // Check authentication status on page load
         document.addEventListener('DOMContentLoaded', () => {
             this.handlePageLoad();
         });
@@ -25,49 +24,43 @@ class AuthFlow {
 
         // Route logic based on current page and auth status
         if (currentPath === '/' || currentPath === '/index.html') {
-            // Root should go to login if not authenticated
             if (!isAuthenticated) {
-                this.redirectTo('/login');
+                this.redirectTo('/login.html');
                 return;
             }
             if (!hasCompletedOnboarding) {
-                this.redirectTo('/onboarding');
+                this.redirectTo('/onboarding.html');
                 return;
             }
-            // If authenticated and onboarded, go to games
-            this.redirectTo('/games');
+            this.redirectTo('/games.html');
             return;
         } else if (currentPath === '/onboarding' || currentPath === '/onboarding.html') {
             if (!isAuthenticated) {
-                this.redirectTo('/login');
+                this.redirectTo('/login.html');
                 return;
             }
             if (hasCompletedOnboarding) {
-                this.redirectTo('/games');
+                this.redirectTo('/games.html');
                 return;
             }
-            // Stay on onboarding page
         } else if (currentPath === '/login' || currentPath === '/login.html') {
             if (isAuthenticated && hasCompletedOnboarding) {
-                this.redirectTo('/games');
+                this.redirectTo('/games.html');
                 return;
             }
             if (isAuthenticated && !hasCompletedOnboarding) {
-                this.redirectTo('/onboarding');
+                this.redirectTo('/onboarding.html');
                 return;
             }
-            // Stay on login page
         } else if (this.isProtectedPage(currentPath)) {
-            // For all protected pages, require authentication
             if (!isAuthenticated) {
-                this.redirectTo('/login');
+                this.redirectTo('/login.html');
                 return;
             }
             if (!hasCompletedOnboarding) {
-                this.redirectTo('/onboarding');
+                this.redirectTo('/onboarding.html');
                 return;
             }
-            // Stay on current page
         }
     }
 
@@ -96,13 +89,10 @@ class AuthFlow {
     }
 
     redirectTo(path) {
-        // Remove .html extension for cleaner URLs
-        const cleanPath = path.replace('.html', '');
-        
-        // Prevent redirect loops
-        if (window.location.pathname !== cleanPath) {
-            console.log('Redirecting to:', cleanPath);
-            window.location.href = cleanPath;
+        // Use .html extensions for Vercel compatibility
+        if (window.location.pathname !== path) {
+            console.log('Redirecting to:', path);
+            window.location.href = path;
         }
     }
 
@@ -115,9 +105,9 @@ class AuthFlow {
         }
         
         if (this.hasCompletedOnboarding()) {
-            this.redirectTo('/games');
+            this.redirectTo('/games.html');
         } else {
-            this.redirectTo('/onboarding');
+            this.redirectTo('/onboarding.html');
         }
     }
 
@@ -130,20 +120,16 @@ class AuthFlow {
             localStorage.setItem('zkUser', JSON.stringify(updatedUser));
         }
         
-        this.redirectTo('/games');
+        this.redirectTo('/games.html');
     }
 
     logout() {
-        // Clear all authentication data
         localStorage.removeItem('zkGamingToken');
         localStorage.removeItem('zkUser');
         localStorage.removeItem('succinctVerified');
         localStorage.removeItem('zkOnboardingComplete');
         
-        // Clear any game data if needed
-        // localStorage.clear(); // Uncomment if you want to clear everything
-        
-        this.redirectTo('/login');
+        this.redirectTo('/login.html');
     }
 
     getCurrentUser() {
@@ -158,8 +144,7 @@ class AuthFlow {
         return updatedUser;
     }
 
-    // Check if user needs to be redirected from current page
-    requireAuth(redirectPath = '/login') {
+    requireAuth(redirectPath = '/login.html') {
         if (!this.isAuthenticated()) {
             this.redirectTo(redirectPath);
             return false;
@@ -167,7 +152,7 @@ class AuthFlow {
         return true;
     }
 
-    requireOnboarding(redirectPath = '/onboarding') {
+    requireOnboarding(redirectPath = '/onboarding.html') {
         if (!this.hasCompletedOnboarding()) {
             this.redirectTo(redirectPath);
             return false;
