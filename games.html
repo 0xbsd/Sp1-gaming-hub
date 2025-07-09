@@ -5,7 +5,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ZK Gaming Hub - Games Menu</title>
-   <link rel="stylesheet" href="css/styles.css">
+    <link rel="stylesheet" href="css/styles.css">
+    <script src="js/auth-flow.js"></script>
     <style>
         * {
             margin: 0;
@@ -475,7 +476,7 @@
     <!-- Header -->
     <header class="header">
         <div class="header-content">
-            <a href="/" class="logo">
+            <a href="/games" class="logo">
                 <span>🎮</span>
                 <span>ZK Gaming Hub</span>
             </a>
@@ -541,20 +542,6 @@
                 </div>
             </div>
         </section>
-       
-<!-- Add this to the navigation in games.html -->
-<!-- Add proper navigation back to hub -->
-<nav class="nav-header">
-    <div class="nav-content">
-        <a href="/games" class="logo">🎮 ZK Gaming Hub</a>
-        <div class="nav-links">
-            <a href="/home" class="nav-link">Home</a>
-            <a href="/games" class="nav-link">Games</a>
-            <button class="logout-btn" onclick="logout()">Logout</button>
-        </div>
-    </div>
-</nav>
-
 
         <!-- Coming Soon Section -->
         <section class="coming-soon-section">
@@ -567,7 +554,7 @@
     </div>
 
     <script>
-        // Game data
+        // Game data with FIXED PATHS (no .html extension)
         const games = [
             {
                 id: 'proof-puzzle',
@@ -577,7 +564,7 @@
                 difficulty: 'easy',
                 playCount: localStorage.getItem('proof-puzzle-plays') || 0,
                 bestScore: localStorage.getItem('proof-puzzle-best') || 0,
-                path: '/proof-puzzle.html'
+                path: '/proof-puzzle'  // FIXED: removed .html
             },
             {
                 id: 'zk-sudoku',
@@ -587,7 +574,7 @@
                 difficulty: 'medium',
                 playCount: localStorage.getItem('zk-sudoku-plays') || 0,
                 bestScore: localStorage.getItem('zk-sudoku-best') || 0,
-                path: '/zk-sudoku.html'
+                path: '/zk-sudoku'  // FIXED: removed .html
             },
             {
                 id: 'memory-matrix',
@@ -597,7 +584,7 @@
                 difficulty: 'medium',
                 playCount: localStorage.getItem('memory-matrix-plays') || 0,
                 bestScore: localStorage.getItem('memory-matrix-best') || 0,
-                path: '/memory-matrix.html'
+                path: '/memory-matrix'  // FIXED: removed .html
             },
             {
                 id: 'proof-racing',
@@ -607,7 +594,7 @@
                 difficulty: 'hard',
                 playCount: localStorage.getItem('proof-racing-plays') || 0,
                 bestScore: localStorage.getItem('proof-racing-best') || 0,
-                path: '/proof-racing.html'
+                path: '/proof-racing'  // FIXED: removed .html
             }
         ];
 
@@ -615,7 +602,7 @@
         function checkAuth() {
             const token = localStorage.getItem('zkGamingToken');
             if (!token) {
-                window.location.href = '/login.html';
+                window.location.href = '/login';
                 return false;
             }
             return true;
@@ -700,7 +687,9 @@
         function logout() {
             localStorage.removeItem('zkGamingToken');
             localStorage.removeItem('zkUser');
-            window.location.href = '/login.html';
+            localStorage.removeItem('succinctVerified');
+            localStorage.removeItem('zkOnboardingComplete');
+            window.location.href = '/login';
         }
 
         // Initialize
@@ -708,18 +697,19 @@
             loadUserData();
             renderGames();
         }
-        // Basic error handling
-window.addEventListener('error', function(e) {
-  console.error('Script error:', e.error);
-});
 
-// Handle missing functions gracefully
-function handleMissingAPI() {
-  if (typeof zkAPI === 'undefined') {
-    console.warn('API not available, using mock data');
-    // Initialize mock API
-  }
-}
+        // Basic error handling
+        window.addEventListener('error', function(e) {
+            console.error('Script error:', e.error);
+        });
+
+        // Handle missing functions gracefully
+        function handleMissingAPI() {
+            if (typeof zkAPI === 'undefined') {
+                console.warn('API not available, using mock data');
+                // Initialize mock API
+            }
+        }
     </script>
 </body>
 </html>

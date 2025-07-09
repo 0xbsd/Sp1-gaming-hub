@@ -24,7 +24,20 @@ class AuthFlow {
         });
 
         // Route logic based on current page and auth status
-        if (currentPath === '/' || currentPath === '/onboarding') {
+        if (currentPath === '/' || currentPath === '/index.html') {
+            // Root should go to login if not authenticated
+            if (!isAuthenticated) {
+                this.redirectTo('/login');
+                return;
+            }
+            if (!hasCompletedOnboarding) {
+                this.redirectTo('/onboarding');
+                return;
+            }
+            // If authenticated and onboarded, go to games
+            this.redirectTo('/games');
+            return;
+        } else if (currentPath === '/onboarding' || currentPath === '/onboarding.html') {
             if (!isAuthenticated) {
                 this.redirectTo('/login');
                 return;
@@ -34,7 +47,7 @@ class AuthFlow {
                 return;
             }
             // Stay on onboarding page
-        } else if (currentPath === '/login') {
+        } else if (currentPath === '/login' || currentPath === '/login.html') {
             if (isAuthenticated && hasCompletedOnboarding) {
                 this.redirectTo('/games');
                 return;
@@ -60,14 +73,14 @@ class AuthFlow {
 
     isProtectedPage(path) {
         const protectedPages = [
-            '/games',
-            '/home',
-            '/hub',
-            '/proof-puzzle',
-            '/zk-sudoku',
-            '/memory-matrix',
-            '/proof-racing',
-            '/coming-soon'
+            '/games', '/games.html',
+            '/home', '/home.html',
+            '/hub', '/hub.html',
+            '/proof-puzzle', '/proof-puzzle.html',
+            '/zk-sudoku', '/sudoku-game.html',
+            '/memory-matrix', '/memory-matrix.html',
+            '/proof-racing', '/proof-racing.html',
+            '/coming-soon', '/coming-soon.html'
         ];
         return protectedPages.includes(path);
     }
@@ -83,10 +96,13 @@ class AuthFlow {
     }
 
     redirectTo(path) {
+        // Remove .html extension for cleaner URLs
+        const cleanPath = path.replace('.html', '');
+        
         // Prevent redirect loops
-        if (window.location.pathname !== path) {
-            console.log('Redirecting to:', path);
-            window.location.href = path;
+        if (window.location.pathname !== cleanPath) {
+            console.log('Redirecting to:', cleanPath);
+            window.location.href = cleanPath;
         }
     }
 
