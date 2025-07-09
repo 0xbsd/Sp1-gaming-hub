@@ -1137,5 +1137,64 @@ function handleMissingAPI() {
         console.log('%c🎮 ZK Gaming Hub - Coming Soon!', 'color: #6366f1; font-size: 20px; font-weight: bold;');
         console.log('%cThe future of Zero-Knowledge gaming is almost here!', 'color: #10b981; font-size: 14px;');
     </script>
+    <!-- Add this before closing </body> tag in all HTML files -->
+<script>
+// Global error handling
+window.addEventListener('error', function(e) {
+    console.error('Script error:', e.error);
+    // Don't break the app on errors
+});
+
+// Handle missing API gracefully
+if (typeof window !== 'undefined' && !window.zkAPI) {
+    // Import the mock API
+    import('./api/config.js').then(module => {
+        window.zkAPI = module.mockAPI;
+    }).catch(err => {
+        console.warn('Failed to load API config, using fallback');
+        // Fallback API
+        window.zkAPI = {
+            auth: {
+                login: () => Promise.resolve({ success: true, data: { token: 'mock_token' } }),
+                logout: () => Promise.resolve({ success: true })
+            },
+            user: {
+                getProfile: () => Promise.resolve({ success: true, data: {} }),
+                updateProfile: () => Promise.resolve({ success: true }),
+                getStats: () => Promise.resolve({ success: true, data: {} }),
+                getAchievements: () => Promise.resolve({ success: true, data: [] }),
+                getGameHistory: () => Promise.resolve({ success: true, data: { sessions: [] } })
+            },
+            games: {
+                submitScore: () => Promise.resolve({ success: true, data: {} })
+            }
+        };
+    });
+}
+
+// Handle localStorage errors
+function safeLocalStorage(key, value = null) {
+    try {
+        if (value === null) {
+            return localStorage.getItem(key);
+        } else {
+            localStorage.setItem(key, value);
+        }
+    } catch (e) {
+        console.warn('localStorage error:', e);
+        return null;
+    }
+}
+
+// Replace localStorage calls with safe version if needed
+if (typeof window !== 'undefined' && !window.localStorage) {
+    window.localStorage = {
+        getItem: () => null,
+        setItem: () => {},
+        removeItem: () => {},
+        clear: () => {}
+    };
+}
+</script>
 </body>
 </html>
