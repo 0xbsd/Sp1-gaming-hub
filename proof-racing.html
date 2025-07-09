@@ -1,10 +1,11 @@
 <!DOCTYPE html>
 <html lang="en">
-    <link rel="stylesheet" href="/css/styles.css">
+    
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Proof Racing - Race to Generate ZK Proofs</title>
+    <link rel="stylesheet" href="css/styles.css">
     <style>
         * {
             margin: 0;
@@ -532,6 +533,18 @@
     </style>
 </head>
 <body>
+    <nav class="nav-header">
+    <div class="nav-content">
+        <a href="/" class="logo">
+            <span>🎮</span>
+            <span>ZK Gaming Hub</span>
+        </a>
+        <div class="nav-links">
+            <a href="games.html" class="nav-link">← Back to Games</a>
+            <a href="/" class="nav-link">Home</a>
+        </div>
+    </div>
+</nav>
     <!-- Racing Background -->
     <div class="racing-bg"></div>
 
@@ -1113,6 +1126,18 @@
                 generateProof();
             }
         });
+        // Basic error handling
+window.addEventListener('error', function(e) {
+  console.error('Script error:', e.error);
+});
+
+// Handle missing functions gracefully
+function handleMissingAPI() {
+  if (typeof zkAPI === 'undefined') {
+    console.warn('API not available, using mock data');
+    // Initialize mock API
+  }
+}
     </script>
 </body>
 </html>

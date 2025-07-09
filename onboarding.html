@@ -1,10 +1,11 @@
 <!DOCTYPE html>
 <html lang="en">
-    <link rel="stylesheet" href="/css/styles.css">
+    
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ZK Gaming Hub - Welcome Experience</title>
+    <link rel="stylesheet" href="css/styles.css">
     <style>
         * {
             margin: 0;
@@ -1311,6 +1312,17 @@
                 zkPoints: 100
             }
         };
+        // Add to each HTML file that uses zkAPI
+window.zkAPI = window.zkAPI || {
+  auth: {
+    login: () => Promise.resolve({ success: true }),
+    logout: () => { localStorage.clear(); window.location.href = '/login'; }
+  },
+  user: {
+    getProfile: () => Promise.resolve({ success: true, data: {} }),
+    updateProfile: () => Promise.resolve({ success: true })
+  }
+};
         
         try {
             // Update user profile
@@ -1344,6 +1356,18 @@
     enterHub = function() {
         window.location.href = '/games';
     };
+    // Basic error handling
+window.addEventListener('error', function(e) {
+  console.error('Script error:', e.error);
+});
+
+// Handle missing functions gracefully
+function handleMissingAPI() {
+  if (typeof zkAPI === 'undefined') {
+    console.warn('API not available, using mock data');
+    // Initialize mock API
+  }
+}
 </script>
 `;
 </body>

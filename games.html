@@ -1,10 +1,11 @@
 <!DOCTYPE html>
 <html lang="en">
+   
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ZK Gaming Hub - Games Menu</title>
-    <link rel="stylesheet" href="/css/styles.css">
+   <link rel="stylesheet" href="css/styles.css">
     <style>
         * {
             margin: 0;
@@ -542,12 +543,17 @@
         </section>
        
 <!-- Add this to the navigation in games.html -->
-<div class="nav-links">
-  <a href="/games" class="nav-link">Games</a>
-  <a href="/profile" class="nav-link">Profile</a>
-  <a href="/coming-soon" class="nav-link">Coming Soon</a>
-  <button class="logout-btn" onclick="zkAPI.auth.logout()">Logout</button>
-</div>
+<!-- Add proper navigation back to hub -->
+<nav class="nav-header">
+  <div class="nav-content">
+    <a href="/" class="logo">🎮 ZK Gaming Hub</a>
+    <div class="nav-links">
+      <a href="/games" class="nav-link">Games</a>
+      <a href="/coming-soon" class="nav-link">Coming Soon</a>
+      <button class="logout-btn" onclick="logout()">Logout</button>
+    </div>
+  </div>
+</nav>
 
 
         <!-- Coming Soon Section -->
@@ -702,6 +708,18 @@
             loadUserData();
             renderGames();
         }
+        // Basic error handling
+window.addEventListener('error', function(e) {
+  console.error('Script error:', e.error);
+});
+
+// Handle missing functions gracefully
+function handleMissingAPI() {
+  if (typeof zkAPI === 'undefined') {
+    console.warn('API not available, using mock data');
+    // Initialize mock API
+  }
+}
     </script>
 </body>
 </html>

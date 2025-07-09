@@ -1,14 +1,14 @@
 {
   "routes": [
-    { "src": "/", "dest": "/public/index.html" },
-    { "src": "/login", "dest": "/public/login.html" },
-    { "src": "/onboarding", "dest": "/public/onboarding.html" }, 
-    { "src": "/games", "dest": "/public/games.html" },
-    { "src": "/games/proof-puzzle", "dest": "/public/proof-puzzle.html" },
-    { "src": "/games/zk-sudoku", "dest": "/public/zk-sudoku.html" },
-    { "src": "/games/memory-matrix", "dest": "/public/memory-matrix.html" },
-    { "src": "/games/proof-racing", "dest": "/public/proof-racing.html" },
-    { "src": "/coming-soon", "dest": "/public/coming-soon.html" }
+    { "src": "/", "dest": "/index.html" },
+    { "src": "/login", "dest": "/login.html" },
+    { "src": "/onboarding", "dest": "/onboarding.html" }, 
+    { "src": "/games", "dest": "/games.html" },
+    { "src": "/games/proof-puzzle", "dest": "/proof-puzzle.html" },
+    { "src": "/games/zk-sudoku", "dest": "/zk-sudoku.html" },
+    { "src": "/games/memory-matrix", "dest": "/memory-matrix.html" },
+    { "src": "/games/proof-racing", "dest": "/proof-racing.html" },
+    { "src": "/coming-soon", "dest": "/coming-soon.html" }
   ],
   "rewrites": [
     { "source": "/api/:path*", "destination": "https://your-backend.railway.app/api/:path*" }

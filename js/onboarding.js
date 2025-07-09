@@ -45,7 +45,7 @@ function showStep(stepNum) {
   });
   
   // Show current step
-  const currentStep = document.getElementById(`step\${stepNum}`);
+  const currentStep = document.getElementById(`step${stepNum}`);
   if (currentStep) {
     currentStep.classList.add('active');
   }
