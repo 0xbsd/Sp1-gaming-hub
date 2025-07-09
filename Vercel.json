@@ -1,15 +1,19 @@
 {
   "routes": [
     { "src": "/", "dest": "/onboarding.html" },
-    { "src": "/home", "dest": "/index.html" },
+    { "src": "/onboarding", "dest": "/onboarding.html" },
     { "src": "/login", "dest": "/login.html" },
-    { "src": "/onboarding", "dest": "/onboarding.html" }, 
+    { "src": "/home", "dest": "/index.html" },
+    { "src": "/hub", "dest": "/index.html" },
     { "src": "/games", "dest": "/games.html" },
     { "src": "/proof-puzzle", "dest": "/proof-puzzle.html" },
-    { "src": "/zk-sudoku", "dest": "/zk-sudoku.html" },
+    { "src": "/zk-sudoku", "dest": "/sudoku-game.html" },
     { "src": "/memory-matrix", "dest": "/memory-matrix.html" },
     { "src": "/proof-racing", "dest": "/proof-racing.html" },
-    { "src": "/coming-soon", "dest": "/coming-soon.html" }
+    { "src": "/coming-soon", "dest": "/coming-soon.html" },
+    { "src": "/static/(.*)", "dest": "/static/$1" },
+    { "src": "/css/(.*)", "dest": "/css/$1" },
+    { "src": "/js/(.*)", "dest": "/js/$1" }
   ],
   "rewrites": [
     { "source": "/api/:path*", "destination": "https://your-backend.railway.app/api/:path*" }

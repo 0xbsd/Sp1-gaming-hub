@@ -924,13 +924,20 @@
 
         // Show Success
         function showSuccess() {
-            document.getElementById('successOverlay').classList.add('show');
-            
-            // Redirect after 2 seconds
-            setTimeout(() => {
-                window.location.href = '/hub';
-            }, 2000);
+    document.getElementById('successOverlay').classList.add('show');
+    
+    // Check if user needs onboarding
+    const hasCompletedOnboarding = localStorage.getItem('zkOnboardingComplete');
+    
+    // Redirect after 2 seconds
+    setTimeout(() => {
+        if (hasCompletedOnboarding === 'true') {
+            window.location.href = '/games';
+        } else {
+            window.location.href = '/onboarding';
         }
+    }, 2000);
+}
 
         // Check if already verified
         document.addEventListener('DOMContentLoaded', () => {

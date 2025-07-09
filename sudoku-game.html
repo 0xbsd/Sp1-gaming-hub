@@ -1,11 +1,13 @@
 <!DOCTYPE html>
 <html lang="en">
-    
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ZK Sudoku - Prove Your Solution Without Revealing It</title>
     <link rel="stylesheet" href="css/styles.css">
+    <!-- ADD AUTH FLOW SCRIPT -->
+    <script src="js/auth-flow.js"></script>
+    
     <style>
         * {
             margin: 0;
@@ -33,12 +35,77 @@
             background: var(--dark);
             color: var(--text);
             min-height: 100vh;
-            padding: 2rem;
+            padding-top: 80px; /* Add padding for navigation */
         }
 
-        .game-container {
+        /* ADD NAVIGATION STYLES */
+        .nav-header {
+            background: rgba(30, 41, 59, 0.95);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid var(--border);
+            padding: 1rem 2rem;
+            position: fixed;
+            top: 0;
+            width: 100%;
+            z-index: 1000;
+        }
+
+        .nav-content {
             max-width: 1200px;
             margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            font-size: 1.5rem;
+            font-weight: bold;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 2rem;
+            align-items: center;
+        }
+
+        .nav-link {
+            color: var(--text-dim);
+            text-decoration: none;
+            transition: color 0.3s;
+        }
+
+        .nav-link:hover {
+            color: var(--text);
+        }
+
+        .logout-btn {
+            padding: 0.5rem 1rem;
+            background: transparent;
+            border: 1px solid var(--border);
+            border-radius: 0.5rem;
+            color: var(--text);
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .logout-btn:hover {
+            border-color: var(--error);
+            color: var(--error);
+        }
+
+        /* MAIN CONTAINER */
+        .game-container {
+            max-width: 1200px;
+            margin: 2rem auto;
+            padding: 0 2rem;
             display: grid;
             grid-template-columns: 1fr 350px;
             gap: 2rem;
@@ -100,7 +167,9 @@
             position: relative;
         }
 
-        .sudoku-cell:nth-child(3n):not(:nth-child(9n)) {
+        /* FIXED SUDOKU CELL BORDERS FOR 3X3 GRID LINES */
+        .sudoku-cell:nth-child(3n):not(:nth-child(9n)),
+        .sudoku-cell:nth-child(6n):not(:nth-child(9n)) {
             border-right: 3px solid var(--border);
         }
 
@@ -255,6 +324,7 @@
 
         .proof-indicator.verified {
             background: var(--accent);
+            animation: none; /* Stop pulsing when verified */
         }
 
         @keyframes pulse {
@@ -281,7 +351,7 @@
             color: white;
         }
 
-        .btn-primary:hover {
+        .btn-primary:hover:not(:disabled) {
             background: var(--primary-dark);
             transform: translateY(-2px);
             box-shadow: 0 10px 20px rgba(99, 102, 241, 0.3);
@@ -300,6 +370,7 @@
         .btn:disabled {
             opacity: 0.5;
             cursor: not-allowed;
+            transform: none !important;
         }
 
         .button-group {
@@ -368,12 +439,19 @@
         .success-icon {
             font-size: 4rem;
             margin-bottom: 1rem;
+            animation: bounce 1s ease infinite;
+        }
+
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
         }
 
         /* Mobile Responsive */
         @media (max-width: 768px) {
             .game-container {
                 grid-template-columns: 1fr;
+                padding: 0 1rem;
             }
 
             .sudoku-cell {
@@ -382,6 +460,27 @@
 
             .game-title {
                 font-size: 2rem;
+            }
+
+            .nav-links {
+                display: none;
+            }
+
+            body {
+                padding-top: 60px;
+            }
+
+            .game-container {
+                margin: 1rem auto;
+            }
+
+            .number-pad {
+                max-width: 250px;
+            }
+
+            .number-btn {
+                padding: 0.75rem;
+                font-size: 1.2rem;
             }
         }
 
@@ -402,6 +501,21 @@
     </style>
 </head>
 <body>
+    <!-- ADD NAVIGATION -->
+    <nav class="nav-header">
+        <div class="nav-content">
+            <a href="/games" class="logo">
+                <span>🎮</span>
+                <span>ZK Gaming Hub</span>
+            </a>
+            <div class="nav-links">
+                <a href="/games" class="nav-link">← Back to Games</a>
+                <a href="/home" class="nav-link">Home</a>
+                <button class="logout-btn" onclick="logout()">Logout</button>
+            </div>
+        </div>
+    </nav>
+
     <div class="game-container">
         <!-- Header -->
         <div class="game-header">
@@ -543,7 +657,7 @@
             </div>
 
             <div class="button-group">
-                <button class="btn btn-secondary" onclick="closeModal()">
+                <button class="btn btn-secondary" onclick="shareProof()">
                     <span>Share Proof</span>
                 </button>
                 <button class="btn btn-primary" onclick="newGame()">
@@ -580,14 +694,25 @@
 
         // Initialize game
         document.addEventListener('DOMContentLoaded', () => {
+            // Check authentication before loading game
+            if (!checkAuth()) {
+                return; // Will be redirected by auth flow
+            }
+            
             initGame();
             startTimer();
         });
 
         function initGame() {
-            generateSudoku();
-            renderBoard();
-            updateStats();
+            try {
+                generateSudoku();
+                renderBoard();
+                updateStats();
+            } catch (error) {
+                console.error('Failed to initialize game:', error);
+                // Fallback: try again
+                setTimeout(initGame, 1000);
+            }
         }
 
         // Generate a valid Sudoku puzzle
@@ -618,14 +743,34 @@
         function generateCompleteSudoku() {
             const board = Array(81).fill(0);
             
-            // Fill the diagonal 3x3 boxes first (they don't affect each other)
-            for (let box = 0; box < 9; box += 4) {
-                fillBox(board, box);
+            try {
+                // Fill the diagonal 3x3 boxes first (they don't affect each other)
+                for (let box = 0; box < 9; box += 4) {
+                    fillBox(board, box);
+                }
+                
+                // Solve the rest
+                if (!solveSudoku(board)) {
+                    // If solving fails, try again
+                    return generateCompleteSudoku();
+                }
+                
+                return board;
+            } catch (error) {
+                console.error('Error generating Sudoku:', error);
+                // Return a simple fallback puzzle
+                return [
+                    5,3,0,0,7,0,0,0,0,
+                    6,0,0,1,9,5,0,0,0,
+                    0,9,8,0,0,0,0,6,0,
+                    8,0,0,0,6,0,0,0,3,
+                    4,0,0,8,0,3,0,0,1,
+                    7,0,0,0,2,0,0,0,6,
+                    0,6,0,0,0,0,2,8,0,
+                    0,0,0,4,1,9,0,0,5,
+                    0,0,0,0,8,0,0,7,9
+                ];
             }
-            
-            // Solve the rest
-            solveSudoku(board);
-            return board;
         }
 
         // Fill a 3x3 box with random valid numbers
@@ -676,33 +821,40 @@
         }
 
         function isValidMove(board, pos, num) {
-            // Check row
-            const row = Math.floor(pos / 9);
-            for (let c = 0; c < 9; c++) {
-                if (board[row * 9 + c] === num) return false;
-            }
-            
-            // Check column
-            const col = pos % 9;
-            for (let r = 0; r < 9; r++) {
-                if (board[r * 9 + col] === num) return false;
-            }
-            
-            // Check 3x3 box
-            const boxRow = Math.floor(row / 3) * 3;
-            const boxCol = Math.floor(col / 3) * 3;
-            for (let r = 0; r < 3; r++) {
-                for (let c = 0; c < 3; c++) {
-                    if (board[(boxRow + r) * 9 + (boxCol + c)] === num) return false;
+            try {
+                // Check row
+                const row = Math.floor(pos / 9);
+                for (let c = 0; c < 9; c++) {
+                    if (board[row * 9 + c] === num) return false;
                 }
+                
+                // Check column
+                const col = pos % 9;
+                for (let r = 0; r < 9; r++) {
+                    if (board[r * 9 + col] === num) return false;
+                }
+                
+                // Check 3x3 box
+                const boxRow = Math.floor(row / 3) * 3;
+                const boxCol = Math.floor(col / 3) * 3;
+                for (let r = 0; r < 3; r++) {
+                    for (let c = 0; c < 3; c++) {
+                        if (board[(boxRow + r) * 9 + (boxCol + c)] === num) return false;
+                    }
+                }
+                
+                return true;
+            } catch (error) {
+                console.error('Error in isValidMove:', error);
+                return false;
             }
-            
-            return true;
         }
 
         // Render the game board
         function renderBoard() {
             const boardEl = document.getElementById('sudokuBoard');
+            if (!boardEl) return;
+            
             boardEl.innerHTML = '';
             
             for (let i = 0; i < 81; i++) {
@@ -735,10 +887,12 @@
             
             gameState.selectedCell = index;
             const cells = document.querySelectorAll('.sudoku-cell');
-            cells[index].classList.add('selected');
-            
-            // Highlight related cells
-            highlightRelatedCells(index);
+            if (cells[index]) {
+                cells[index].classList.add('selected');
+                
+                // Highlight related cells
+                highlightRelatedCells(index);
+            }
         }
 
         function highlightRelatedCells(index) {
@@ -751,14 +905,15 @@
             
             // Highlight row and column
             for (let i = 0; i < 9; i++) {
-                cells[row * 9 + i].classList.add('highlighted');
-                cells[i * 9 + col].classList.add('highlighted');
+                if (cells[row * 9 + i]) cells[row * 9 + i].classList.add('highlighted');
+                if (cells[i * 9 + col]) cells[i * 9 + col].classList.add('highlighted');
             }
             
             // Highlight 3x3 box
             for (let r = 0; r < 3; r++) {
                 for (let c = 0; c < 3; c++) {
-                    cells[(boxRow + r) * 9 + (boxCol + c)].classList.add('highlighted');
+                    const cellIndex = (boxRow + r) * 9 + (boxCol + c);
+                    if (cells[cellIndex]) cells[cellIndex].classList.add('highlighted');
                 }
             }
         }
@@ -772,21 +927,23 @@
             gameState.board[gameState.selectedCell] = num;
             
             const cell = document.querySelector(`[data-index="${gameState.selectedCell}"]`);
-            cell.textContent = num;
-            cell.classList.remove('error', 'hint');
-            
-            // Check if valid
-            if (!isValidMove(gameState.board, gameState.selectedCell, num)) {
-                cell.classList.add('error');
+            if (cell) {
+                cell.textContent = num;
+                cell.classList.remove('error', 'hint');
+                
+                // Check if valid
+                if (!isValidMove(gameState.board, gameState.selectedCell, num)) {
+                    cell.classList.add('error');
+                }
+                
+                if (oldValue === 0) {
+                    gameState.moves++;
+                    updateStats();
+                }
+                
+                updateProgress();
+                checkComplete();
             }
-            
-            if (oldValue === 0) {
-                gameState.moves++;
-                updateStats();
-            }
-            
-            updateProgress();
-            checkComplete();
         }
 
         // Clear cell
@@ -797,8 +954,10 @@
             gameState.board[gameState.selectedCell] = 0;
             
             const cell = document.querySelector(`[data-index="${gameState.selectedCell}"]`);
-            cell.textContent = '';
-            cell.classList.remove('error', 'hint');
+            if (cell) {
+                cell.textContent = '';
+                cell.classList.remove('error', 'hint');
+            }
             
             updateProgress();
         }
@@ -813,8 +972,10 @@
             gameState.board[gameState.selectedCell] = correctValue;
             
             const cell = document.querySelector(`[data-index="${gameState.selectedCell}"]`);
-            cell.textContent = correctValue;
-            cell.classList.add('hint');
+            if (cell) {
+                cell.textContent = correctValue;
+                cell.classList.add('hint');
+            }
             
             gameState.hints++;
             updateStats();
@@ -824,21 +985,30 @@
 
         // Check if puzzle is complete
         function checkComplete() {
-            // Check if all cells are filled
-            const emptyCells = gameState.board.filter(val => val === 0).length;
-            if (emptyCells > 0) return;
-            
-            // Check if solution is valid
-            for (let i = 0; i < 81; i++) {
-                if (gameState.board[i] !== gameState.solution[i]) {
-                    return;
+            try {
+                // Check if all cells are filled
+                const emptyCells = gameState.board.filter(val => val === 0).length;
+                if (emptyCells > 0) return;
+                
+                // Check if solution is valid
+                for (let i = 0; i < 81; i++) {
+                    if (gameState.board[i] !== gameState.solution[i]) {
+                        return;
+                    }
                 }
+                
+                gameState.isComplete = true;
+                const proofBtn = document.getElementById('proofBtn');
+                const proofIndicator = document.getElementById('proofIndicator');
+                const proofStatus = document.getElementById('proofStatus');
+                
+                if (proofBtn) proofBtn.disabled = false;
+                if (proofIndicator) proofIndicator.classList.add('ready');
+                if (proofStatus) proofStatus.textContent = 'Solution valid! Ready to generate proof';
+                
+            } catch (error) {
+                console.error('Error checking completion:', error);
             }
-            
-            gameState.isComplete = true;
-            document.getElementById('proofBtn').disabled = false;
-            document.getElementById('proofIndicator').classList.add('ready');
-            document.getElementById('proofStatus').textContent = 'Solution valid! Ready to generate proof';
         }
 
         // Generate ZK Proof
@@ -846,24 +1016,34 @@
             if (!gameState.isComplete) return;
             
             const btn = document.getElementById('proofBtn');
+            if (!btn) return;
+            
             btn.innerHTML = '<span class="loader"></span><span>Generating...</span>';
             btn.disabled = true;
             
             // Simulate proof generation
             setTimeout(() => {
-                const time = document.getElementById('timer').textContent;
+                const time = document.getElementById('timer')?.textContent || '00:00';
                 const points = calculatePoints();
                 
-                document.getElementById('finalTime').textContent = time;
-                document.getElementById('finalMoves').textContent = gameState.moves;
-                document.getElementById('pointsEarned').textContent = points;
+                const finalTime = document.getElementById('finalTime');
+                const finalMoves = document.getElementById('finalMoves');
+                const pointsEarned = document.getElementById('pointsEarned');
                 
-                document.getElementById('proofIndicator').classList.add('verified');
-                document.getElementById('proofStatus').textContent = 'Proof verified!';
+                if (finalTime) finalTime.textContent = time;
+                if (finalMoves) finalMoves.textContent = gameState.moves;
+                if (pointsEarned) pointsEarned.textContent = points;
+                
+                const proofIndicator = document.getElementById('proofIndicator');
+                const proofStatus = document.getElementById('proofStatus');
+                
+                if (proofIndicator) proofIndicator.classList.add('verified');
+                if (proofStatus) proofStatus.textContent = 'Proof verified!';
                 
                 // Show success modal
                 setTimeout(() => {
-                    document.getElementById('successModal').classList.add('show');
+                    const modal = document.getElementById('successModal');
+                    if (modal) modal.classList.add('show');
                 }, 500);
             }, 2000);
         }
@@ -891,10 +1071,15 @@
 
         // Update statistics
         function updateStats() {
-            document.getElementById('moves').textContent = gameState.moves;
-            document.getElementById('hints').textContent = gameState.hints;
-            document.getElementById('difficultyLabel').textContent = 
-                gameState.difficulty.charAt(0).toUpperCase() + gameState.difficulty.slice(1);
+            const movesEl = document.getElementById('moves');
+            const hintsEl = document.getElementById('hints');
+            const difficultyEl = document.getElementById('difficultyLabel');
+            
+            if (movesEl) movesEl.textContent = gameState.moves;
+            if (hintsEl) hintsEl.textContent = gameState.hints;
+            if (difficultyEl) {
+                difficultyEl.textContent = gameState.difficulty.charAt(0).toUpperCase() + gameState.difficulty.slice(1);
+            }
         }
 
         // Update progress
@@ -903,38 +1088,54 @@
             const progress = Math.round((filledCells / 81) * 100);
             const emptyCells = 81 - filledCells;
             
-            document.getElementById('progressText').textContent = `${progress}%`;
-            document.getElementById('progressBar').style.width = `${progress}%`;
-            document.getElementById('emptyCells').textContent = emptyCells;
+            const progressText = document.getElementById('progressText');
+            const progressBar = document.getElementById('progressBar');
+            const emptyCellsEl = document.getElementById('emptyCells');
+            
+            if (progressText) progressText.textContent = `${progress}%`;
+            if (progressBar) progressBar.style.width = `${progress}%`;
+            if (emptyCellsEl) emptyCellsEl.textContent = emptyCells;
         }
 
         // Timer
         function startTimer() {
+            if (timerInterval) clearInterval(timerInterval);
+            
             timerInterval = setInterval(() => {
                 const elapsed = Math.floor((Date.now() - gameState.startTime) / 1000);
                 const minutes = Math.floor(elapsed / 60);
                 const seconds = elapsed % 60;
-                document.getElementById('timer').textContent = 
-                    `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+                const timerEl = document.getElementById('timer');
+                if (timerEl) {
+                    timerEl.textContent = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+                }
             }, 1000);
         }
 
         // Set difficulty
         function setDifficulty(level) {
+            if (gameState.isComplete) return; // Don't allow change during completed game
+            
             gameState.difficulty = level;
             
             // Update UI
             document.querySelectorAll('.difficulty-btn').forEach(btn => {
                 btn.classList.remove('active');
             });
-            event.target.classList.add('active');
+            
+            // Find the clicked button
+            const clickedBtn = Array.from(document.querySelectorAll('.difficulty-btn'))
+                .find(btn => btn.textContent.toLowerCase() === level);
+            if (clickedBtn) {
+                clickedBtn.classList.add('active');
+            }
             
             resetGame();
         }
 
         // Reset game
         function resetGame() {
-            clearInterval(timerInterval);
+            if (timerInterval) clearInterval(timerInterval);
             
             gameState = {
                 board: Array(81).fill(0),
@@ -952,9 +1153,20 @@
             startTimer();
             
             // Reset UI
-            document.getElementById('proofBtn').disabled = true;
-            document.getElementById('proofIndicator').classList.remove('ready', 'verified');
-            document.getElementById('proofStatus').textContent = 'Fill the grid to generate proof';
+            const proofBtn = document.getElementById('proofBtn');
+            const proofIndicator = document.getElementById('proofIndicator');
+            const proofStatus = document.getElementById('proofStatus');
+            
+            if (proofBtn) {
+                proofBtn.disabled = true;
+                proofBtn.innerHTML = '<span>🔐</span><span>Generate ZK Proof</span>';
+            }
+            if (proofIndicator) {
+                proofIndicator.classList.remove('ready', 'verified');
+            }
+            if (proofStatus) {
+                proofStatus.textContent = 'Fill the grid to generate proof';
+            }
         }
 
         // New game (from modal)
@@ -965,7 +1177,29 @@
 
         // Close modal
         function closeModal() {
-            document.getElementById('successModal').classList.remove('show');
+            const modal = document.getElementById('successModal');
+            if (modal) modal.classList.remove('show');
+        }
+
+        // Share proof function
+        function shareProof() {
+            const text = `I just solved a ZK Sudoku puzzle! 🎉\n\nDifficulty: ${gameState.difficulty}\nMoves: ${gameState.moves}\nTime: ${document.getElementById('timer')?.textContent || '00:00'}\n\nCan you beat my score? Play at: ${window.location.origin}`;
+            
+            if (navigator.share) {
+                navigator.share({
+                    title: 'ZK Sudoku Achievement',
+                    text: text,
+                    url: window.location.origin
+                }).catch(console.error);
+            } else if (navigator.clipboard) {
+                navigator.clipboard.writeText(text).then(() => {
+                    alert('Achievement copied to clipboard!');
+                }).catch(() => {
+                    alert('Share this: ' + text);
+                });
+            } else {
+                alert('Share this: ' + text);
+            }
         }
 
         // Utility function to shuffle array
@@ -986,20 +1220,118 @@
                 clearCell();
             } else if (e.key === 'h' || e.key === 'H') {
                 showHint();
+            } else if (e.key === 'Escape') {
+                // Deselect current cell
+                gameState.selectedCell = null;
+                document.querySelectorAll('.sudoku-cell').forEach(cell => {
+                    cell.classList.remove('selected', 'highlighted');
+                });
             }
         });
-        // Basic error handling
-window.addEventListener('error', function(e) {
-  console.error('Script error:', e.error);
-});
 
-// Handle missing functions gracefully
-function handleMissingAPI() {
-  if (typeof zkAPI === 'undefined') {
-    console.warn('API not available, using mock data');
-    // Initialize mock API
-  }
-}
+        // Enhanced error handling
+        window.addEventListener('error', function(e) {
+            console.error('Sudoku game error:', e.error);
+            // Don't break the game on errors
+            try {
+                // Reset to a safe state if needed
+                if (!gameState.board || gameState.board.length !== 81) {
+                    resetGame();
+                }
+            } catch (resetError) {
+                console.error('Failed to reset game after error:', resetError);
+            }
+        });
+
+        // Cleanup on page unload
+        window.addEventListener('beforeunload', function() {
+            if (timerInterval) {
+                clearInterval(timerInterval);
+            }
+        });
+
+        // Save game progress
+        function saveGameProgress() {
+            try {
+                const gameData = {
+                    difficulty: gameState.difficulty,
+                    moves: gameState.moves,
+                    hints: gameState.hints,
+                    timeElapsed: Math.floor((Date.now() - gameState.startTime) / 1000),
+                    completed: gameState.isComplete,
+                    timestamp: Date.now()
+                };
+                localStorage.setItem('zk-sudoku-progress', JSON.stringify(gameData));
+            } catch (error) {
+                console.warn('Failed to save game progress:', error);
+            }
+        }
+
+        // Auto-save progress periodically
+        setInterval(saveGameProgress, 30000); // Save every 30 seconds
+
+        // Load previous best scores
+        function loadBestScores() {
+            try {
+                const savedData = localStorage.getItem('zk-sudoku-best');
+                if (savedData) {
+                    const bestScores = JSON.parse(savedData);
+                    console.log('Previous best scores:', bestScores);
+                    // Could display these in the UI
+                }
+            } catch (error) {
+                console.warn('Failed to load best scores:', error);
+            }
+        }
+
+        // Save best score on completion
+        function saveBestScore() {
+            if (!gameState.isComplete) return;
+            
+            try {
+                const timeInSeconds = Math.floor((Date.now() - gameState.startTime) / 1000);
+                const score = {
+                    difficulty: gameState.difficulty,
+                    time: timeInSeconds,
+                    moves: gameState.moves,
+                    hints: gameState.hints,
+                    points: calculatePoints(),
+                    date: new Date().toISOString()
+                };
+                
+                let bestScores = JSON.parse(localStorage.getItem('zk-sudoku-best') || '{}');
+                if (!bestScores[gameState.difficulty] || 
+                    timeInSeconds < bestScores[gameState.difficulty].time) {
+                    bestScores[gameState.difficulty] = score;
+                    localStorage.setItem('zk-sudoku-best', JSON.stringify(bestScores));
+                }
+            } catch (error) {
+                console.warn('Failed to save best score:', error);
+            }
+        }
+
+        // Call saveBestScore when game completes
+        const originalCheckComplete = checkComplete;
+        checkComplete = function() {
+            const wasComplete = gameState.isComplete;
+            originalCheckComplete();
+            if (!wasComplete && gameState.isComplete) {
+                saveBestScore();
+            }
+        };
+
+        // Initialize best scores loading
+        document.addEventListener('DOMContentLoaded', () => {
+            loadBestScores();
+        });
+
+        // Close modal when clicking outside
+        document.addEventListener('click', function(e) {
+            const modal = document.getElementById('successModal');
+            if (e.target === modal) {
+                closeModal();
+            }
+        });
     </script>
 </body>
 </html>

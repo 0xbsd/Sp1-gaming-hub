@@ -1165,71 +1165,62 @@
         }
 
         // Complete Onboarding
-        function completeOnboarding() {
-            // Save user data
-            const userData = {
-                userType: onboardingState.userType,
-                profile: onboardingState.profileData,
-                walletConnected: onboardingState.walletConnected,
-                tutorialCompleted: true,
-                firstAchievement: {
-                    name: 'First Steps',
-                    description: 'Completed the onboarding tutorial',
-                    zkPoints: 100
-                }
-            };
+       function completeOnboarding() {
+    // Save completion state
+    localStorage.setItem('zkOnboardingComplete', 'true');
+    
+    // Show completion screen
+    document.querySelector('.onboarding-container').innerHTML = `
+        <div style="text-align: center; animation: fadeIn 0.5s ease;">
+            <div style="font-size: 6rem; margin-bottom: 2rem; animation: bounce 2s ease infinite;">🏆</div>
+            <h1 style="font-size: 3rem; margin-bottom: 1rem; background: var(--gradient); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">
+                Welcome, ${onboardingState.profileData.username || 'Player'}!
+            </h1>
+            <p style="font-size: 1.5rem; color: var(--text-dim); margin-bottom: 3rem;">
+                You're ready to explore the world of ZK Gaming
+            </p>
             
-            // Show completion screen
-            document.querySelector('.onboarding-container').innerHTML = `
-                <div style="text-align: center; animation: fadeIn 0.5s ease;">
-                    <div style="font-size: 6rem; margin-bottom: 2rem; animation: bounce 2s ease infinite;">🏆</div>
-                    <h1 style="font-size: 3rem; margin-bottom: 1rem; background: var(--gradient); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">
-                        Welcome, ${userData.profile.username || 'Player'}!
-                    </h1>
-                    <p style="font-size: 1.5rem; color: var(--text-dim); margin-bottom: 3rem;">
-                        You're ready to explore the world of ZK Gaming
-                    </p>
-                    
-                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 2rem; max-width: 600px; margin: 0 auto 3rem;">
-                        <div style="background: var(--dark-lighter); padding: 2rem; border-radius: 1rem; border: 2px solid var(--border);">
-                            <div style="font-size: 2rem; margin-bottom: 0.5rem;">🎮</div>
-                            <div style="font-size: 1.5rem; color: var(--primary);">Level 1</div>
-                            <div style="color: var(--text-dim);">Beginner</div>
-                        </div>
-                        <div style="background: var(--dark-lighter); padding: 2rem; border-radius: 1rem; border: 2px solid var(--border);">
-                            <div style="font-size: 2rem; margin-bottom: 0.5rem;">⭐</div>
-                            <div style="font-size: 1.5rem; color: var(--primary);">100</div>
-                            <div style="color: var(--text-dim);">ZK Points</div>
-                        </div>
-                        <div style="background: var(--dark-lighter); padding: 2rem; border-radius: 1rem; border: 2px solid var(--border);">
-                            <div style="font-size: 2rem; margin-bottom: 0.5rem;">🏅</div>
-                            <div style="font-size: 1.5rem; color: var(--primary);">1</div>
-                            <div style="color: var(--text-dim);">Achievement</div>
-                        </div>
-                    </div>
-                    
-                    <button class="btn btn-primary" style="font-size: 1.2rem; padding: 1rem 3rem;" onclick="enterHub()">
-                        <span>Enter Gaming Hub</span>
-                        <span>🚀</span>
-                    </button>
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 2rem; max-width: 600px; margin: 0 auto 3rem;">
+                <div style="background: var(--dark-lighter); padding: 2rem; border-radius: 1rem; border: 2px solid var(--border);">
+                    <div style="font-size: 2rem; margin-bottom: 0.5rem;">🎮</div>
+                    <div style="font-size: 1.5rem; color: var(--primary);">Level 1</div>
+                    <div style="color: var(--text-dim);">Beginner</div>
                 </div>
-            `;
+                <div style="background: var(--dark-lighter); padding: 2rem; border-radius: 1rem; border: 2px solid var(--border);">
+                    <div style="font-size: 2rem; margin-bottom: 0.5rem;">⭐</div>
+                    <div style="font-size: 1.5rem; color: var(--primary);">100</div>
+                    <div style="color: var(--text-dim);">ZK Points</div>
+                </div>
+                <div style="background: var(--dark-lighter); padding: 2rem; border-radius: 1rem; border: 2px solid var(--border);">
+                    <div style="font-size: 2rem; margin-bottom: 0.5rem;">🏅</div>
+                    <div style="font-size: 1.5rem; color: var(--primary);">1</div>
+                    <div style="color: var(--text-dim);">Achievement</div>
+                </div>
+            </div>
             
-            // Create confetti
-            createConfetti();
-        }
+            <button class="btn btn-primary" style="font-size: 1.2rem; padding: 1rem 3rem;" onclick="enterHub()">
+                <span>Enter Gaming Hub</span>
+                <span>🚀</span>
+            </button>
+        </div>
+    `;
+    
+    // Create confetti
+    createConfetti();
+}
 
         // Skip onboarding
         function skipOnboarding() {
-            if (confirm('Are you sure you want to skip the tutorial? You can always access it later from your profile.')) {
-                enterHub();
-            }
-        }
+    if (confirm('Are you sure you want to skip the tutorial? You can always access it later from your profile.')) {
+        localStorage.setItem('zkOnboardingComplete', 'true');
+        window.location.href = '/games';
+    }
+}
 
         // Enter main hub
         function enterHub() {
             // Redirect to main gaming hub
-            window.location.href = '/hub';
+            window.location.href = '/games';
         }
 
         // Confetti effect
@@ -1376,14 +1367,21 @@ function handleMissingAPI() {
 // In onboarding.html
 document.addEventListener('DOMContentLoaded', () => {
     const hasCompletedOnboarding = localStorage.getItem('zkOnboardingComplete');
+    const isAuthenticated = localStorage.getItem('zkGamingToken');
     
-    if (hasCompletedOnboarding === 'true') {
-        // User already onboarded, redirect to games
+    // If user is authenticated and has completed onboarding, redirect to games
+    if (isAuthenticated && hasCompletedOnboarding === 'true') {
         window.location.href = '/games';
         return;
     }
     
-    // Continue with onboarding...
+    // If user is not authenticated, redirect to login
+    if (!isAuthenticated) {
+        window.location.href = '/login';
+        return;
+    }
+    
+    // Otherwise, continue with onboarding
     initializeOnboarding();
 });
 </script>

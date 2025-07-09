@@ -1,11 +1,13 @@
 <!DOCTYPE html>
 <html lang="en">
-   
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Memory Matrix - Prove Your Memory Without Revealing</title>
     <link rel="stylesheet" href="css/styles.css">
+    <!-- ADD AUTH FLOW SCRIPT -->
+    <script src="js/auth-flow.js"></script>
+    
     <style>
         * {
             margin: 0;
@@ -33,10 +35,84 @@
             background: var(--dark);
             color: var(--text);
             min-height: 100vh;
+            padding-top: 80px; /* Add padding for navigation */
+        }
+
+        /* ADD NAVIGATION STYLES */
+        .nav-header {
+            background: rgba(30, 41, 59, 0.95);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid var(--border);
+            padding: 1rem 2rem;
+            position: fixed;
+            top: 0;
+            width: 100%;
+            z-index: 1000;
+        }
+
+        .nav-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            font-size: 1.5rem;
+            font-weight: bold;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-decoration: none;
             display: flex;
             align-items: center;
-            justify-content: center;
+            gap: 0.5rem;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 2rem;
+            align-items: center;
+        }
+
+        .nav-link {
+            color: var(--text-dim);
+            text-decoration: none;
+            transition: color 0.3s;
+        }
+
+        .nav-link:hover {
+            color: var(--text);
+        }
+
+        .logout-btn {
+            padding: 0.5rem 1rem;
+            background: transparent;
+            border: 1px solid var(--border);
+            border-radius: 0.5rem;
+            color: var(--text);
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .logout-btn:hover {
+            border-color: var(--error);
+            color: var(--error);
+        }
+
+        /* ADJUST MAIN CONTAINER FOR NAVIGATION */
+        .game-container {
+            max-width: 900px;
+            width: 100%;
+            background: rgba(30, 41, 59, 0.9);
+            backdrop-filter: blur(10px);
+            border: 2px solid var(--border);
+            border-radius: 1rem;
             padding: 2rem;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5);
+            margin: 2rem auto;
+            display: block; /* Fix centering issue */
         }
 
         /* Background Animation */
@@ -60,18 +136,6 @@
             to {
                 transform: translateY(100vh);
             }
-        }
-
-        /* Main Container */
-        .game-container {
-            max-width: 900px;
-            width: 100%;
-            background: rgba(30, 41, 59, 0.9);
-            backdrop-filter: blur(10px);
-            border: 2px solid var(--border);
-            border-radius: 1rem;
-            padding: 2rem;
-            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5);
         }
 
         /* Header */
@@ -328,13 +392,14 @@
         /* Score Display */
         .score-display {
             position: fixed;
-            top: 2rem;
+            top: 100px; /* Adjust for navigation */
             right: 2rem;
             background: var(--dark-lighter);
             border: 2px solid var(--border);
             border-radius: 0.5rem;
             padding: 1rem 1.5rem;
             min-width: 200px;
+            z-index: 50;
         }
 
         .score-label {
@@ -390,11 +455,13 @@
             .matrix-cell {
                 width: 60px;
                 height: 60px;
+                font-size: 1.5rem;
             }
 
             .score-display {
                 position: static;
                 margin-bottom: 1rem;
+                order: -1;
             }
 
             .game-title {
@@ -404,6 +471,19 @@
             .level-indicator {
                 flex-wrap: wrap;
                 gap: 1rem;
+            }
+
+            .nav-links {
+                display: none;
+            }
+
+            body {
+                padding-top: 60px;
+            }
+
+            .game-container {
+                margin: 1rem;
+                padding: 1.5rem;
             }
         }
 
@@ -424,6 +504,21 @@
     </style>
 </head>
 <body>
+    <!-- ADD NAVIGATION -->
+    <nav class="nav-header">
+        <div class="nav-content">
+            <a href="/games" class="logo">
+                <span>🎮</span>
+                <span>ZK Gaming Hub</span>
+            </a>
+            <div class="nav-links">
+                <a href="/games" class="nav-link">← Back to Games</a>
+                <a href="/home" class="nav-link">Home</a>
+                <button class="logout-btn" onclick="logout()">Logout</button>
+            </div>
+        </div>
+    </nav>
+
     <!-- Background Effect -->
     <div class="bg-effect" id="bgEffect"></div>
 
@@ -477,7 +572,7 @@
 
             <!-- Control Buttons -->
             <div class="control-buttons">
-                <button class="btn btn-secondary" onclick="showPattern()" id="showBtn" disabled>
+                <button class="btn btn-secondary" onclick="showHint()" id="showBtn" disabled>
                     <span>👁️</span>
                     <span>Show Pattern</span>
                 </button>
@@ -590,6 +685,11 @@
 
         // Initialize
         document.addEventListener('DOMContentLoaded', () => {
+            // Check authentication before loading game
+            if (!checkAuth()) {
+                return; // Will be redirected by auth flow
+            }
+            
             createBackgroundEffect();
             createGrid();
             updateUI();
@@ -777,11 +877,6 @@
             gameState.isPlayerTurn = false;
             gameState.lives--;
             
-        // Round failed
-        function roundFailed() {
-            gameState.isPlayerTurn = false;
-            gameState.lives--;
-            
             const message = document.getElementById('statusMessage');
             message.textContent = 'Incorrect! Try again.';
             
@@ -789,8 +884,10 @@
             setTimeout(() => {
                 gameState.pattern.forEach(index => {
                     const cell = document.querySelector(`[data-index="${index}"]`);
-                    cell.classList.add('shown');
-                    cell.textContent = '⭐';
+                    if (cell) {
+                        cell.classList.add('shown');
+                        cell.textContent = '⭐';
+                    }
                 });
             }, 500);
             
@@ -880,8 +977,8 @@
             document.getElementById('statusTimer').textContent = '';
         }
 
-        // Show pattern hint (costs a life)
-        function showPattern() {
+        // Show pattern hint (costs a life) - FIXED FUNCTION NAME
+        function showHint() {
             if (!gameState.isPlayerTurn || gameState.lives <= 1) return;
             
             gameState.lives--;
@@ -891,13 +988,15 @@
             gameState.pattern.forEach((index, i) => {
                 setTimeout(() => {
                     const cell = document.querySelector(`[data-index="${index}"]`);
-                    cell.classList.add('shown');
-                    cell.textContent = '⭐';
-                    
-                    setTimeout(() => {
-                        cell.classList.remove('shown');
-                        cell.textContent = '';
-                    }, 500);
+                    if (cell) {
+                        cell.classList.add('shown');
+                        cell.textContent = '⭐';
+                        
+                        setTimeout(() => {
+                            cell.classList.remove('shown');
+                            cell.textContent = '';
+                        }, 500);
+                    }
                 }, i * 200);
             });
         }
@@ -936,21 +1035,93 @@
             if (e.key === 'Enter' && !document.getElementById('startBtn').disabled) {
                 startRound();
             } else if (e.key === 'h' && !document.getElementById('showBtn').disabled) {
-                showPattern();
+                showHint();
             }
         });
-        // Basic error handling
-window.addEventListener('error', function(e) {
-  console.error('Script error:', e.error);
-});
 
-// Handle missing functions gracefully
-function handleMissingAPI() {
-  if (typeof zkAPI === 'undefined') {
-    console.warn('API not available, using mock data');
-    // Initialize mock API
-  }
-}
+        // Enhanced error handling
+        window.addEventListener('error', function(e) {
+            console.error('Memory Matrix error:', e.error);
+            // Don't break the game on errors
+            try {
+                // Reset to a safe state if needed
+                if (gameState.isPlayerTurn) {
+                    resetRound();
+                }
+            } catch (resetError) {
+                console.error('Failed to reset game after error:', resetError);
+            }
+        });
+
+        // Prevent memory leaks
+        window.addEventListener('beforeunload', function() {
+            // Clear any running intervals/timeouts
+            if (typeof countdownInterval !== 'undefined') {
+                clearInterval(countdownInterval);
+            }
+        });
+
+        // Add modal close functionality
+        function closeModal() {
+            document.getElementById('successModal').classList.remove('show');
+            document.getElementById('gameOverModal').classList.remove('show');
+        }
+
+        // Close modal when clicking outside
+        document.addEventListener('click', function(e) {
+            if (e.target.classList.contains('modal')) {
+                closeModal();
+            }
+        });
+
+        // Save game progress
+        function saveGameData() {
+            try {
+                const gameData = {
+                    highestLevel: gameState.level,
+                    totalScore: gameState.score,
+                    timestamp: Date.now()
+                };
+                localStorage.setItem('memory-matrix-progress', JSON.stringify(gameData));
+            } catch (error) {
+                console.warn('Failed to save game progress:', error);
+            }
+        }
+
+        // Load game progress
+        function loadGameData() {
+            try {
+                const savedData = localStorage.getItem('memory-matrix-progress');
+                if (savedData) {
+                    const gameData = JSON.parse(savedData);
+                    // Could show previous high score or achievements
+                    console.log('Previous best:', gameData);
+                }
+            } catch (error) {
+                console.warn('Failed to load game progress:', error);
+            }
+        }
+
+        // Initialize game data loading
+        document.addEventListener('DOMContentLoaded', () => {
+            loadGameData();
+        });
+
+        // Save progress when level completes
+        function levelComplete() {
+            roundComplete();
+            saveGameData();
+        }
+
+        // Performance optimization: Limit animation frame rate
+        let lastAnimationTime = 0;
+        function optimizedAnimation(callback) {
+            const now = Date.now();
+            if (now - lastAnimationTime > 16) { // ~60fps
+                lastAnimationTime = now;
+                callback();
+            }
+        }
     </script>
 </body>
 </html>

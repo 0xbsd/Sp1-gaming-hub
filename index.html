@@ -603,41 +603,18 @@
 
         // Game launcher
         function openGame(gameType) {
-            const modal = document.getElementById('gameModal');
-            const modalTitle = document.getElementById('modalTitle');
-            const modalDescription = document.getElementById('modalDescription');
-            const launchBtn = document.getElementById('launchBtn');
-
-            const gameInfo = {
-                puzzle: {
-                    title: 'Proof Puzzle',
-                    description: 'Learn ZK concepts by solving interactive puzzles. Each level teaches a new concept about zero-knowledge proofs.',
-                    action: () => window.open('#puzzle-game', '_blank')
-                },
-                poker: {
-                    title: 'Anonymous Poker',
-                    description: 'Play Texas Hold\'em where cards remain hidden using ZK proofs. Prove your hand without revealing it!',
-                    action: () => window.open('#poker-game', '_blank')
-                },
-                racing: {
-                    title: 'Proof Racing Championship',
-                    description: 'Compete globally to generate the fastest proofs. Optimize your circuits and climb the leaderboard!',
-                    action: () => window.open('#racing-game', '_blank')
-                },
-                sudoku: {
-                    title: 'ZK Sudoku Battle',
-                    description: 'Real-time Sudoku battles where solutions are verified without revealing your strategy.',
-                    action: () => window.open('#sudoku-game', '_blank')
-                }
-            };
-
-            const game = gameInfo[gameType];
-            modalTitle.textContent = game.title;
-            modalDescription.textContent = game.description;
-            launchBtn.onclick = game.action;
-
-            modal.style.display = 'flex';
-        }
+    const gameRoutes = {
+        puzzle: '/proof-puzzle',
+        poker: '/coming-soon',
+        racing: '/proof-racing', 
+        sudoku: '/zk-sudoku'
+    };
+    
+    const route = gameRoutes[gameType];
+    if (route) {
+        window.location.href = route;
+    }
+}
 
         function closeModal() {
             document.getElementById('gameModal').style.display = 'none';
