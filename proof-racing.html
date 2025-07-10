@@ -968,14 +968,14 @@
         const aiRacers = {
             ai1: { 
                 name: "ZK Bot Alpha", 
-                baseSpeed: 0.8, 
-                variance: 0.2,
+                baseSpeed: 0.4, // Slower AI for longer race
+                variance: 0.1,
                 personality: "steady"
             },
             ai2: { 
                 name: "Proof Master", 
-                baseSpeed: 0.9, 
-                variance: 0.15,
+                baseSpeed: 0.45, // Slower AI for longer race
+                variance: 0.075,
                 personality: "aggressive"
             }
         };
@@ -1112,7 +1112,7 @@
             gameState.wrongAnswers = 0; // Reset wrong answer streak
             
             const totalChallenges = challenges[gameState.difficulty].length;
-            gameState.playerProgress = ((gameState.currentChallenge + 1) / totalChallenges) * 100;
+            gameState.playerProgress = ((gameState.currentChallenge + 1) / totalChallenges) * 50; // Slower progress for longer race
             
             // Visual feedback
             createParticles();
