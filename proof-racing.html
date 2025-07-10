@@ -4,10 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Proof Racing - Race to Generate ZK Proofs</title>
-    <link rel="stylesheet" href="css/styles.css">
-    <!-- ADD AUTH FLOW SCRIPT -->
-    <script src="js/auth-flow.js"></script>
-    
     <style>
         * {
             margin: 0;
@@ -39,10 +35,9 @@
             color: var(--text);
             min-height: 100vh;
             overflow-x: hidden;
-            padding-top: 80px; /* Add padding for navigation */
         }
 
-        /* ADD NAVIGATION STYLES */
+        /* Navigation */
         .nav-header {
             background: rgba(30, 41, 59, 0.95);
             backdrop-filter: blur(10px);
@@ -90,21 +85,6 @@
             color: var(--text);
         }
 
-        .logout-btn {
-            padding: 0.5rem 1rem;
-            background: transparent;
-            border: 1px solid var(--border);
-            border-radius: 0.5rem;
-            color: var(--text);
-            cursor: pointer;
-            transition: all 0.3s;
-        }
-
-        .logout-btn:hover {
-            border-color: var(--error);
-            color: var(--error);
-        }
-
         /* Racing Track Background */
         .racing-bg {
             position: fixed;
@@ -131,7 +111,7 @@
             border-bottom: 2px solid var(--border);
             padding: 1.5rem 2rem;
             position: sticky;
-            top: 80px; /* Adjust for navigation */
+            top: 70px;
             z-index: 100;
         }
 
@@ -329,6 +309,11 @@
             padding: 1rem;
             margin-bottom: 1rem;
             font-family: monospace;
+            min-height: 60px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.1rem;
         }
 
         .input-section {
@@ -357,12 +342,24 @@
             color: var(--text);
             font-family: monospace;
             transition: all 0.3s;
+            font-size: 1rem;
         }
 
         .input-field:focus {
             outline: none;
             border-color: var(--primary);
             box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+        }
+
+        .input-field.error {
+            border-color: var(--error);
+            animation: shake 0.5s;
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-5px); }
+            75% { transform: translateX(5px); }
         }
 
         /* Control Buttons */
@@ -402,8 +399,9 @@
             border: 2px solid var(--border);
         }
 
-        .btn-secondary:hover {
+        .btn-secondary:hover:not(:disabled) {
             border-color: var(--primary);
+            background: rgba(99, 102, 241, 0.1);
         }
 
         .btn:disabled {
@@ -449,6 +447,7 @@
 
         .leaderboard-item:hover {
             transform: translateX(5px);
+            background: rgba(99, 102, 241, 0.1);
         }
 
         .leaderboard-rank {
@@ -558,44 +557,6 @@
             }
         }
 
-        /* Mobile Responsive */
-        @media (max-width: 968px) {
-            .main-container {
-                grid-template-columns: 1fr;
-                padding: 0 1rem;
-            }
-
-            .race-stats {
-                flex-wrap: wrap;
-                gap: 1rem;
-            }
-
-            .nav-links {
-                display: none;
-            }
-
-            body {
-                padding-top: 60px;
-            }
-
-            .game-header {
-                top: 60px;
-            }
-
-            .game-title {
-                font-size: 1.5rem;
-            }
-
-            .input-section {
-                flex-direction: column;
-                gap: 1rem;
-            }
-
-            .btn {
-                padding: 0.75rem 1rem;
-            }
-        }
-
         /* Particles Effect */
         .particles {
             position: absolute;
@@ -623,10 +584,93 @@
                 opacity: 0;
             }
         }
+
+        /* Mobile Responsive */
+        @media (max-width: 968px) {
+            .main-container {
+                grid-template-columns: 1fr;
+                padding: 0 1rem;
+            }
+
+            .race-stats {
+                flex-wrap: wrap;
+                gap: 1rem;
+            }
+
+            .nav-links {
+                display: none;
+            }
+
+            .game-title {
+                font-size: 1.5rem;
+            }
+
+            .input-section {
+                flex-direction: column;
+                gap: 1rem;
+            }
+
+            .btn {
+                padding: 0.75rem 1rem;
+            }
+        }
+
+        /* Hint Display */
+        .hint-display {
+            background: rgba(245, 158, 11, 0.1);
+            border: 1px solid var(--warning);
+            border-radius: 0.5rem;
+            padding: 1rem;
+            margin-top: 1rem;
+            display: none;
+        }
+
+        .hint-display.show {
+            display: block;
+            animation: slideIn 0.3s ease;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Countdown Timer */
+        .countdown-display {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(0, 0, 0, 0.9);
+            color: var(--primary);
+            font-size: 4rem;
+            font-weight: bold;
+            padding: 2rem;
+            border-radius: 1rem;
+            z-index: 2000;
+            display: none;
+        }
+
+        .countdown-display.show {
+            display: block;
+            animation: countdownPulse 1s ease;
+        }
+
+        @keyframes countdownPulse {
+            0% { transform: translate(-50%, -50%) scale(0.8); }
+            50% { transform: translate(-50%, -50%) scale(1.2); }
+            100% { transform: translate(-50%, -50%) scale(1); }
+        }
     </style>
 </head>
 <body>
-    <!-- ADD NAVIGATION -->
+    <!-- Navigation -->
     <nav class="nav-header">
         <div class="nav-content">
             <a href="/games" class="logo">
@@ -635,14 +679,16 @@
             </a>
             <div class="nav-links">
                 <a href="/games.html" class="nav-link">← Back to Games</a>
-                <a href="/home.html" class="nav-link">Home</a>
-                <button class="logout-btn" onclick="logout()">Logout</button>
+                <a href="/coming-soon.html" class="nav-link">What's Next</a>
             </div>
         </div>
     </nav>
 
     <!-- Racing Background -->
     <div class="racing-bg"></div>
+
+    <!-- Countdown Display -->
+    <div class="countdown-display" id="countdownDisplay">3</div>
 
     <!-- Header -->
     <header class="game-header">
@@ -720,18 +766,22 @@
                 </h3>
                 
                 <div class="challenge-content" id="challengeContent">
-                    Prove that you know the solution to: <strong>x² + 5x + 6 = 0</strong>
+                    Press "Start Race" to begin!
                 </div>
 
                 <div class="input-section">
                     <div class="input-group">
                         <label class="input-label">Your Solution</label>
-                        <input type="text" class="input-field" id="solutionInput" placeholder="Enter your answer">
+                        <input type="text" class="input-field" id="solutionInput" placeholder="Enter your answer" disabled>
                     </div>
-                    <button class="btn btn-primary" onclick="generateProof()" id="proofBtn">
+                    <button class="btn btn-primary" onclick="generateProof()" id="proofBtn" disabled>
                         <span>⚡</span>
                         <span>Generate Proof</span>
                     </button>
+                </div>
+
+                <div class="hint-display" id="hintDisplay">
+                    <strong>💡 Hint:</strong> <span id="hintText"></span>
                 </div>
             </div>
 
@@ -856,79 +906,124 @@
             ai2Progress: 0,
             currentChallenge: 0,
             proofCount: 0,
-            totalPoints: 0,
-            racesWon: 0,
-            bestTime: null,
-            combo: 0
+            totalPoints: parseInt(localStorage.getItem('proof-racing-points') || '0'),
+            racesWon: parseInt(localStorage.getItem('proof-racing-wins') || '0'),
+            bestTime: localStorage.getItem('proof-racing-best-time') ? parseInt(localStorage.getItem('proof-racing-best-time')) : null,
+            combo: 0,
+            wrongAnswers: 0
         };
 
         // AI update interval ID for cleanup
         let aiUpdateInterval = null;
 
-        // Challenges - FIXED DUPLICATE DEFINITION
+        // Challenges with enhanced difficulty progression
         const challenges = {
             sprint: [
                 { question: "x² + 5x + 6 = 0", answer: ["-2", "-3"], hint: "Factor: (x+2)(x+3)" },
-                { question: "2x + 8 = 20", answer: ["6"], hint: "Isolate x" },
-                { question: "x³ = 27", answer: ["3"], hint: "Cube root" },
+                { question: "2x + 8 = 20", answer: ["6"], hint: "Isolate x: 2x = 20-8" },
+                { question: "x³ = 27", answer: ["3"], hint: "What number cubed equals 27?" },
                 { question: "√x = 4", answer: ["16"], hint: "Square both sides" },
-                { question: "5x - 15 = 0", answer: ["3"], hint: "Simple algebra" }
+                { question: "5x - 15 = 0", answer: ["3"], hint: "5x = 15, so x = ?" }
             ],
             circuit: [
-                { question: "x² - 7x + 12 = 0", answer: ["3", "4"], hint: "Factor or quadratic formula" },
+                { question: "x² - 7x + 12 = 0", answer: ["3", "4"], hint: "Factor or use quadratic formula" },
                 { question: "log₂(x) = 3", answer: ["8"], hint: "2³ = ?" },
                 { question: "3ˣ = 81", answer: ["4"], hint: "81 = 3⁴" },
                 { question: "x² + x - 12 = 0", answer: ["3", "-4"], hint: "Factor: (x+4)(x-3)" },
-                { question: "2x² = 32", answer: ["4", "-4"], hint: "Divide then square root" },
+                { question: "2x² = 32", answer: ["4", "-4"], hint: "Divide by 2, then square root" },
                 { question: "|x - 5| = 3", answer: ["8", "2"], hint: "Two solutions: x-5=3 or x-5=-3" },
-                { question: "x! = 24", answer: ["4"], hint: "4! = 4×3×2×1" }
+                { question: "x! = 24", answer: ["4"], hint: "4! = 4×3×2×1 = 24" }
             ],
             endurance: [
                 { question: "x³ - 6x² + 11x - 6 = 0", answer: ["1", "2", "3"], hint: "Try x=1,2,3" },
-                { question: "Find x: Fibonacci(x) = 13", answer: ["7"], hint: "Count: 1,1,2,3,5,8,13" },
-                { question: "x² + y² = 25, y = 3, x > 0", answer: ["4"], hint: "Pythagorean" },
+                { question: "Fibonacci(x) = 13", answer: ["7"], hint: "1,1,2,3,5,8,13..." },
+                { question: "x² + y² = 25, y = 3, x > 0", answer: ["4"], hint: "Pythagorean theorem" },
                 { question: "2ˣ + 2ˣ⁺¹ = 48", answer: ["4"], hint: "Factor out 2ˣ" },
                 { question: "sin(x) = 1, x in degrees", answer: ["90"], hint: "Quarter circle" },
-                { question: "x is prime, 10 < x < 15", answer: ["11", "13"], hint: "11 or 13" },
+                { question: "x prime, 10 < x < 15", answer: ["11", "13"], hint: "Prime numbers: 11, 13" },
                 { question: "GCD(x, 35) = 7, x < 20", answer: ["7", "14"], hint: "Multiples of 7" },
-                { question: "x² - 10x + 25 = 0", answer: ["5"], hint: "Perfect square" },
-                { question: "Sum of digits of x = 9, 45 < x < 55", answer: ["45", "54"], hint: "4+5=9 or 5+4=9" },
+                { question: "x² - 10x + 25 = 0", answer: ["5"], hint: "Perfect square trinomial" },
+                { question: "Sum of digits = 9, 45 < x < 55", answer: ["45", "54"], hint: "4+5=9, 5+4=9" },
                 { question: "x mod 7 = 3, 15 < x < 25", answer: ["17", "24"], hint: "17=2×7+3, 24=3×7+3" }
             ]
         };
 
-        // AI racers configuration
+        // AI racers with enhanced personalities
         const aiRacers = {
             ai1: { 
                 name: "ZK Bot Alpha", 
                 baseSpeed: 0.8, 
                 variance: 0.2,
-                element: 'aiLane1'
+                personality: "steady"
             },
             ai2: { 
                 name: "Proof Master", 
                 baseSpeed: 0.9, 
                 variance: 0.15,
-                element: 'aiLane2'
+                personality: "aggressive"
             }
         };
 
-        // Initialize
+        // Initialize game
         document.addEventListener('DOMContentLoaded', () => {
-            // Check authentication before loading game
-            if (!checkAuth()) {
-                return; // Will be redirected by auth flow
-            }
-            
             updateStats();
-            loadLeaderboard();
             loadGameProgress();
+            setupEventListeners();
         });
 
-        // Start race
+        // Setup event listeners
+        function setupEventListeners() {
+            // Enter key support
+            document.getElementById('solutionInput').addEventListener('keypress', (e) => {
+                if (e.key === 'Enter' && !document.getElementById('proofBtn').disabled) {
+                    generateProof();
+                }
+            });
+
+            // Modal close on outside click
+            document.addEventListener('click', (e) => {
+                if (e.target.classList.contains('modal')) {
+                    closeModal();
+                }
+            });
+
+            // Keyboard shortcuts
+            document.addEventListener('keydown', (e) => {
+                if (e.key === 'Escape') {
+                    resetRace();
+                }
+            });
+        }
+
+        // Enhanced start race with countdown
         function startRace() {
             if (gameState.isRacing) return;
             
+            const countdownEl = document.getElementById('countdownDisplay');
+            const startBtn = document.getElementById('startBtn');
+            
+            startBtn.disabled = true;
+            
+            // Show countdown
+            let count = 3;
+            countdownEl.textContent = count;
+            countdownEl.classList.add('show');
+            
+            const countdownInterval = setInterval(() => {
+                count--;
+                if (count > 0) {
+                    countdownEl.textContent = count;
+                } else if (count === 0) {
+                    countdownEl.textContent = 'GO!';
+                } else {
+                    clearInterval(countdownInterval);
+                    countdownEl.classList.remove('show');
+                    actuallyStartRace();
+                }
+            }, 1000);
+        }
+
+        function actuallyStartRace() {
             gameState.isRacing = true;
             gameState.raceStartTime = Date.now();
             gameState.playerProgress = 0;
@@ -937,24 +1032,21 @@
             gameState.currentChallenge = 0;
             gameState.proofCount = 0;
             gameState.combo = 0;
+            gameState.wrongAnswers = 0;
             
-            const startBtn = document.getElementById('startBtn');
             const proofBtn = document.getElementById('proofBtn');
             const solutionInput = document.getElementById('solutionInput');
             
-            if (startBtn) startBtn.disabled = true;
-            if (proofBtn) proofBtn.disabled = false;
-            if (solutionInput) {
-                solutionInput.disabled = false;
-                solutionInput.focus();
-            }
+            proofBtn.disabled = false;
+            solutionInput.disabled = false;
+            solutionInput.focus();
             
             loadNextChallenge();
             startAIRacers();
             updateRaceProgress();
         }
 
-        // Load next challenge
+        // Enhanced load next challenge
         function loadNextChallenge() {
             const challengeSet = challenges[gameState.difficulty];
             if (gameState.currentChallenge >= challengeSet.length) {
@@ -965,27 +1057,29 @@
             const challenge = challengeSet[gameState.currentChallenge];
             const challengeContent = document.getElementById('challengeContent');
             const solutionInput = document.getElementById('solutionInput');
+            const hintDisplay = document.getElementById('hintDisplay');
             
-            if (challengeContent) {
-                challengeContent.innerHTML = `Prove that you know the solution to: <strong>${challenge.question}</strong>`;
-            }
-            if (solutionInput) {
-                solutionInput.value = '';
-            }
+            challengeContent.innerHTML = `Prove that you know the solution to: <strong>${challenge.question}</strong>`;
+            solutionInput.value = '';
+            solutionInput.classList.remove('error');
+            hintDisplay.classList.remove('show');
         }
 
-        // Generate proof
+        // Enhanced proof generation
         function generateProof() {
             if (!gameState.isRacing) return;
             
             const solutionInput = document.getElementById('solutionInput');
-            if (!solutionInput) return;
-            
             const input = solutionInput.value.trim();
+            
+            if (!input) {
+                solutionInput.classList.add('error');
+                return;
+            }
+            
             const challengeSet = challenges[gameState.difficulty];
             const challenge = challengeSet[gameState.currentChallenge];
             
-            // Check if input matches any of the valid answers
             const isCorrect = challenge.answer.includes(input);
             
             if (isCorrect) {
@@ -995,12 +1089,12 @@
             }
         }
 
-        // Correct answer
+        // Enhanced correct answer handling
         function correctAnswer() {
             gameState.proofCount++;
             gameState.combo++;
+            gameState.wrongAnswers = 0; // Reset wrong answer streak
             
-            // Update progress
             const totalChallenges = challenges[gameState.difficulty].length;
             gameState.playerProgress = ((gameState.currentChallenge + 1) / totalChallenges) * 100;
             
@@ -1008,78 +1102,63 @@
             createParticles();
             updateSpeed();
             
-            // Move to next challenge
+            // Speed boost for correct answers
+            if (gameState.combo > 1) {
+                gameState.playerProgress += Math.min(gameState.combo, 5); // Bonus progress
+            }
+            
             gameState.currentChallenge++;
             
             if (gameState.currentChallenge >= totalChallenges) {
                 finishRace(true);
             } else {
-                loadNextChallenge();
+                setTimeout(() => {
+                    loadNextChallenge();
+                }, 500);
             }
             
             updateRaceProgress();
         }
 
-        // Wrong answer
+        // Enhanced wrong answer handling
         function wrongAnswer() {
             gameState.combo = 0;
+            gameState.wrongAnswers++;
             
-            // Visual feedback
             const inputField = document.getElementById('solutionInput');
-            if (inputField) {
-                inputField.style.borderColor = 'var(--error)';
-                setTimeout(() => {
-                    inputField.style.borderColor = '';
-                }, 1000);
+            inputField.classList.add('error');
+            
+            setTimeout(() => {
+                inputField.classList.remove('error');
+            }, 1000);
+            
+            // Show hint after multiple wrong answers
+            if (gameState.wrongAnswers >= 2) {
+                showHint();
             }
             
-            // Show hint
+            // Slow down player for wrong answers
+            gameState.playerProgress = Math.max(0, gameState.playerProgress - 2);
+            updateRaceProgress();
+        }
+
+        // Enhanced hint system
+        function showHint() {
             const challenge = challenges[gameState.difficulty][gameState.currentChallenge];
-            const challengeContent = document.getElementById('challengeContent');
-            if (challengeContent && !challengeContent.innerHTML.includes('Hint:')) {
-                challengeContent.innerHTML += 
-                    `<br><small style="color: var(--warning)">Hint: ${challenge.hint}</small>`;
-            }
+            const hintDisplay = document.getElementById('hintDisplay');
+            const hintText = document.getElementById('hintText');
+            
+            hintText.textContent = challenge.hint;
+            hintDisplay.classList.add('show');
+            
+            setTimeout(() => {
+                hintDisplay.classList.remove('show');
+            }, 5000);
         }
 
-        // Update race progress
-        function updateRaceProgress() {
-            // Update player lane
-            const playerLane = document.getElementById('playerLane');
-            if (playerLane) {
-                playerLane.style.setProperty('--progress', `${gameState.playerProgress}%`);
-                const playerIcon = playerLane.querySelector('.racer-icon');
-                if (playerIcon) {
-                    playerIcon.style.setProperty('--progress', `${gameState.playerProgress}%`);
-                }
-            }
-            
-            // Update AI lanes
-            const ai1Lane = document.getElementById('aiLane1');
-            if (ai1Lane) {
-                ai1Lane.style.setProperty('--progress', `${gameState.ai1Progress}%`);
-                const ai1Icon = ai1Lane.querySelector('.racer-icon');
-                if (ai1Icon) {
-                    ai1Icon.style.setProperty('--progress', `${gameState.ai1Progress}%`);
-                }
-            }
-            
-            const ai2Lane = document.getElementById('aiLane2');
-            if (ai2Lane) {
-                ai2Lane.style.setProperty('--progress', `${gameState.ai2Progress}%`);
-                const ai2Icon = ai2Lane.querySelector('.racer-icon');
-                if (ai2Icon) {
-                    ai2Icon.style.setProperty('--progress', `${gameState.ai2Progress}%`);
-                }
-            }
-        }
-
-        // Start AI racers
+        // Enhanced AI racers with personality
         function startAIRacers() {
-            // Clear any existing AI update interval
-            if (aiUpdateInterval) {
-                clearInterval(aiUpdateInterval);
-            }
+            if (aiUpdateInterval) clearInterval(aiUpdateInterval);
             
             aiUpdateInterval = setInterval(() => {
                 if (!gameState.isRacing) {
@@ -1087,70 +1166,86 @@
                     return;
                 }
                 
-                // Update AI 1
-                const ai1Speed = aiRacers.ai1.baseSpeed + (Math.random() - 0.5) * aiRacers.ai1.variance;
-                gameState.ai1Progress = Math.min(gameState.ai1Progress + ai1Speed, 100);
+                // AI 1 - Steady performer
+                let ai1Speed = aiRacers.ai1.baseSpeed + (Math.random() - 0.5) * aiRacers.ai1.variance;
+                if (gameState.playerProgress > 50) ai1Speed *= 1.1; // Catchup mechanism
                 
-                // Update AI 2
-                const ai2Speed = aiRacers.ai2.baseSpeed + (Math.random() - 0.5) * aiRacers.ai2.variance;
+                // AI 2 - Aggressive start, then steady
+                let ai2Speed = aiRacers.ai2.baseSpeed + (Math.random() - 0.5) * aiRacers.ai2.variance;
+                if (gameState.ai2Progress < 30) ai2Speed *= 1.2; // Fast start
+                
+                gameState.ai1Progress = Math.min(gameState.ai1Progress + ai1Speed, 100);
                 gameState.ai2Progress = Math.min(gameState.ai2Progress + ai2Speed, 100);
                 
                 // Update speed displays
-                const ai1SpeedEl = document.getElementById('ai1Speed');
-                const ai2SpeedEl = document.getElementById('ai2Speed');
-                
-                if (ai1SpeedEl) ai1SpeedEl.textContent = `${(ai1Speed * 10).toFixed(1)} proofs/s`;
-                if (ai2SpeedEl) ai2SpeedEl.textContent = `${(ai2Speed * 10).toFixed(1)} proofs/s`;
+                document.getElementById('ai1Speed').textContent = `${(ai1Speed * 10).toFixed(1)} proofs/s`;
+                document.getElementById('ai2Speed').textContent = `${(ai2Speed * 10).toFixed(1)} proofs/s`;
                 
                 updateRaceProgress();
                 
-                // Check if any AI finished
-                if (gameState.ai1Progress >= 100 || gameState.ai2Progress >= 100) {
-                    if (gameState.playerProgress < 100) {
-                        finishRace(false);
-                    }
+                // Check for AI victory
+                if ((gameState.ai1Progress >= 100 || gameState.ai2Progress >= 100) && gameState.playerProgress < 100) {
+                    finishRace(false);
                 }
             }, 100);
         }
 
-        // Update speed gauge
+        // Enhanced race progress visualization
+        function updateRaceProgress() {
+            const lanes = ['playerLane', 'aiLane1', 'aiLane2'];
+            const progress = [gameState.playerProgress, gameState.ai1Progress, gameState.ai2Progress];
+            
+            lanes.forEach((laneId, index) => {
+                const lane = document.getElementById(laneId);
+                if (lane) {
+                    const prog = Math.min(progress[index], 100);
+                    lane.style.setProperty('--progress', `${prog}%`);
+                    
+                    const icon = lane.querySelector('.racer-icon');
+                    if (icon) {
+                        icon.style.setProperty('--progress', `${prog}%`);
+                        
+                        // Add winner animation
+                        if (prog >= 100) {
+                            icon.style.animation = 'bounce 0.5s ease infinite';
+                        }
+                    }
+                }
+            });
+        }
+
+        // Enhanced speed gauge
         function updateSpeed() {
             const speed = Math.min(gameState.combo * 2, 10);
             const rotation = -90 + (speed / 10) * 180;
             
-            const gaugeFill = document.querySelector('.gauge-fill');
-            const gaugeNeedle = document.querySelector('.gauge-needle');
-            const speedValue = document.getElementById('speedValue');
-            const playerSpeed = document.getElementById('playerSpeed');
+            const elements = {
+                fill: document.querySelector('.gauge-fill'),
+                needle: document.querySelector('.gauge-needle'),
+                value: document.getElementById('speedValue'),
+                playerSpeed: document.getElementById('playerSpeed')
+            };
             
-            if (gaugeFill) gaugeFill.style.setProperty('--rotation', `${rotation}deg`);
-            if (gaugeNeedle) gaugeNeedle.style.setProperty('--rotation', `${rotation}deg`);
-            if (speedValue) speedValue.textContent = speed.toFixed(1);
-            if (playerSpeed) playerSpeed.textContent = `${speed.toFixed(1)} proofs/s`;
+            if (elements.fill) elements.fill.style.setProperty('--rotation', `${rotation}deg`);
+            if (elements.needle) elements.needle.style.setProperty('--rotation', `${rotation}deg`);
+            if (elements.value) elements.value.textContent = speed.toFixed(1);
+            if (elements.playerSpeed) elements.playerSpeed.textContent = `${speed.toFixed(1)} proofs/s`;
         }
 
-        // Finish race
+        // Enhanced race finish
         function finishRace(won) {
             gameState.isRacing = false;
             
-            // Clear AI update interval
-            if (aiUpdateInterval) {
-                clearInterval(aiUpdateInterval);
-            }
+            if (aiUpdateInterval) clearInterval(aiUpdateInterval);
             
             const raceTime = Math.floor((Date.now() - gameState.raceStartTime) / 1000);
             const position = won ? 1 : (gameState.ai1Progress > gameState.ai2Progress ? 3 : 2);
             
-            // Calculate points
             let points = 0;
             if (won) {
-                points = 1000 - (raceTime * 5); // Base points minus time penalty
-                points += gameState.combo * 50; // Combo bonus
-                points = Math.max(points, 100); // Minimum points
-                
+                points = Math.max(1000 - (raceTime * 5) + (gameState.combo * 50), 100);
                 gameState.racesWon++;
                 
-                // Update best time
                 if (!gameState.bestTime || raceTime < gameState.bestTime) {
                     gameState.bestTime = raceTime;
                 }
@@ -1158,45 +1253,45 @@
             
             gameState.totalPoints += points;
             
-            // Show results
+            // Update modal
             const minutes = Math.floor(raceTime / 60);
             const seconds = raceTime % 60;
             
-            const raceTimeEl = document.getElementById('raceTime');
-            const positionEl = document.getElementById('position');
-            const proofsGeneratedEl = document.getElementById('proofsGenerated');
-            const pointsEarnedEl = document.getElementById('pointsEarned');
-            
-            if (raceTimeEl) {
-                raceTimeEl.textContent = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
-            }
-            if (positionEl) {
-                positionEl.textContent = position === 1 ? '1st' : position === 2 ? '2nd' : '3rd';
-            }
-            if (proofsGeneratedEl) proofsGeneratedEl.textContent = gameState.proofCount;
-            if (pointsEarnedEl) pointsEarnedEl.textContent = points;
+            document.getElementById('raceTime').textContent = 
+                `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+            document.getElementById('position').textContent = 
+                position === 1 ? '1st' : position === 2 ? '2nd' : '3rd';
+            document.getElementById('proofsGenerated').textContent = gameState.proofCount;
+            document.getElementById('pointsEarned').textContent = points;
             
             updateStats();
             saveGameProgress();
             
-            setTimeout(() => {
-                const modal = document.getElementById('victoryModal');
-                if (modal) modal.classList.add('show');
-            }, 1000);
+            if (won) {
+                setTimeout(() => {
+                    document.getElementById('victoryModal').classList.add('show');
+                }, 1000);
+            } else {
+                setTimeout(() => {
+                    alert(`Race finished! You came in ${position === 2 ? '2nd' : '3rd'} place. Better luck next time!`);
+                    resetRace();
+                }, 1000);
+            }
         }
 
-        // Create particle effects
+        // Enhanced particle effects
         function createParticles() {
             const container = document.getElementById('particles');
             if (!container) return;
             
-            for (let i = 0; i < 10; i++) {
+            for (let i = 0; i < 15; i++) {
                 const particle = document.createElement('div');
                 particle.className = 'particle';
                 particle.style.left = `${gameState.playerProgress}%`;
-                particle.style.top = '40px';
-                particle.style.animationDelay = `${i * 0.1}s`;
+                particle.style.top = `${30 + Math.random() * 20}px`;
+                particle.style.animationDelay = `${i * 0.05}s`;
                 particle.style.setProperty('--random-y', Math.random() * 100 - 50);
+                particle.style.background = `hsl(${Math.random() * 60 + 200}, 70%, 60%)`;
                 container.appendChild(particle);
                 
                 setTimeout(() => {
@@ -1207,27 +1302,23 @@
             }
         }
 
-        // Set difficulty
+        // Enhanced difficulty system
         function setDifficulty(diff) {
-            if (gameState.isRacing) return; // Don't allow changing during race
+            if (gameState.isRacing) return;
             
             gameState.difficulty = diff;
             
             document.querySelectorAll('.diff-btn').forEach(btn => {
                 btn.classList.remove('active');
+                if (btn.textContent.toLowerCase() === diff) {
+                    btn.classList.add('active');
+                }
             });
-            
-            // Find the clicked button by text content
-            const clickedBtn = Array.from(document.querySelectorAll('.diff-btn'))
-                .find(btn => btn.textContent.toLowerCase() === diff);
-            if (clickedBtn) {
-                clickedBtn.classList.add('active');
-            }
             
             resetRace();
         }
 
-        // Reset race
+        // Enhanced reset functionality
         function resetRace() {
             gameState.isRacing = false;
             gameState.playerProgress = 0;
@@ -1236,96 +1327,58 @@
             gameState.currentChallenge = 0;
             gameState.proofCount = 0;
             gameState.combo = 0;
+            gameState.wrongAnswers = 0;
             
-            // Clear AI update interval
-            if (aiUpdateInterval) {
-                clearInterval(aiUpdateInterval);
-            }
+            if (aiUpdateInterval) clearInterval(aiUpdateInterval);
             
-            const startBtn = document.getElementById('startBtn');
-            const proofBtn = document.getElementById('proofBtn');
-            const solutionInput = document.getElementById('solutionInput');
-            const challengeContent = document.getElementById('challengeContent');
-            const particlesContainer = document.getElementById('particles');
-            
-            if (startBtn) startBtn.disabled = false;
-            if (proofBtn) proofBtn.disabled = true;
-            if (solutionInput) {
-                solutionInput.disabled = true;
-                solutionInput.value = '';
-            }
-            if (challengeContent) {
-                challengeContent.innerHTML = 'Press "Start Race" to begin!';
-            }
-            if (particlesContainer) {
-                particlesContainer.innerHTML = '';
-            }
+            // Reset UI
+            document.getElementById('startBtn').disabled = false;
+            document.getElementById('proofBtn').disabled = true;
+            document.getElementById('solutionInput').disabled = true;
+            document.getElementById('solutionInput').value = '';
+            document.getElementById('challengeContent').innerHTML = 'Press "Start Race" to begin!';
+            document.getElementById('particles').innerHTML = '';
+            document.getElementById('hintDisplay').classList.remove('show');
             
             updateRaceProgress();
             updateSpeed();
         }
 
-        // Update stats
+        // Enhanced statistics
         function updateStats() {
-            const racesWonEl = document.getElementById('racesWon');
-            const totalPointsEl = document.getElementById('totalPoints');
-            const bestTimeEl = document.getElementById('bestTime');
+            document.getElementById('racesWon').textContent = gameState.racesWon;
+            document.getElementById('totalPoints').textContent = gameState.totalPoints;
             
-            if (racesWonEl) racesWonEl.textContent = gameState.racesWon;
-            if (totalPointsEl) totalPointsEl.textContent = gameState.totalPoints;
-            
-            if (gameState.bestTime && bestTimeEl) {
+            if (gameState.bestTime) {
                 const minutes = Math.floor(gameState.bestTime / 60);
                 const seconds = gameState.bestTime % 60;
-                bestTimeEl.textContent = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+                document.getElementById('bestTime').textContent = 
+                    `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
             }
         }
 
-        // Load leaderboard
-        function loadLeaderboard() {
-            // This would load from backend in production
-            const records = [
-                { name: "Speed Demon", time: 45 },
-                { name: "ZK Flash", time: 52 },
-                { name: "Proof Runner", time: 63 }
-            ];
-            
-            const leaderboard = document.getElementById('leaderboard');
-            if (leaderboard) {
-                leaderboard.innerHTML = records.map((record, i) => `
-                    <div class="leaderboard-item">
-                        <span class="leaderboard-rank">${i + 1}</span>
-                        <span class="leaderboard-name">${record.name}</span>
-                        <span class="leaderboard-time">00:${record.time.toString().padStart(2, '0')}</span>
-                    </div>
-                `).join('');
-            }
-        }
-
-        // Close modal
-        function closeModal() {
-            const modal = document.getElementById('victoryModal');
-            if (modal) modal.classList.remove('show');
-            resetRace();
-        }
-
-        // Save game progress
+        // Enhanced save/load system
         function saveGameProgress() {
+            const progressData = {
+                racesWon: gameState.racesWon,
+                totalPoints: gameState.totalPoints,
+                bestTime: gameState.bestTime,
+                difficulty: gameState.difficulty,
+                timestamp: Date.now()
+            };
+            
             try {
-                const progressData = {
-                    racesWon: gameState.racesWon,
-                    totalPoints: gameState.totalPoints,
-                    bestTime: gameState.bestTime,
-                    difficulty: gameState.difficulty,
-                    timestamp: Date.now()
-                };
                 localStorage.setItem('proof-racing-progress', JSON.stringify(progressData));
+                localStorage.setItem('proof-racing-points', gameState.totalPoints.toString());
+                localStorage.setItem('proof-racing-wins', gameState.racesWon.toString());
+                if (gameState.bestTime) {
+                    localStorage.setItem('proof-racing-best-time', gameState.bestTime.toString());
+                }
             } catch (error) {
-                console.warn('Failed to save game progress:', error);
+                console.warn('Failed to save progress:', error);
             }
         }
 
-        // Load game progress
         function loadGameProgress() {
             try {
                 const savedData = localStorage.getItem('proof-racing-progress');
@@ -1336,8 +1389,6 @@
                     gameState.bestTime = progressData.bestTime || null;
                     gameState.difficulty = progressData.difficulty || 'sprint';
                     
-                    updateStats();
-                    
                     // Update difficulty button
                     document.querySelectorAll('.diff-btn').forEach(btn => {
                         btn.classList.remove('active');
@@ -1347,115 +1398,86 @@
                     });
                 }
             } catch (error) {
-                console.warn('Failed to load game progress:', error);
+                console.warn('Failed to load progress:', error);
             }
         }
 
-        // Keyboard support
-        document.addEventListener('DOMContentLoaded', () => {
-            const solutionInput = document.getElementById('solutionInput');
-            if (solutionInput) {
-                solutionInput.addEventListener('keypress', (e) => {
-                    if (e.key === 'Enter') {
-                        generateProof();
-                    }
-                });
-            }
-        });
+        // Modal controls
+        function closeModal() {
+            document.getElementById('victoryModal').classList.remove('show');
+            resetRace();
+        }
 
         // Enhanced error handling
-        window.addEventListener('error', function(e) {
-            console.error('Proof Racing error:', e.error);
-            // Don't break the game on errors
-            try {
-                // Reset to a safe state if needed
-                if (gameState.isRacing && !document.getElementById('startBtn')?.disabled) {
+        window.addEventListener('error', (e) => {
+            console.error('Game error:', e.error);
+            if (gameState.isRacing) {
+                try {
                     resetRace();
+                } catch (resetError) {
+                    console.error('Failed to reset after error:', resetError);
+                    location.reload();
                 }
-            } catch (resetError) {
-                console.error('Failed to reset game after error:', resetError);
             }
         });
 
         // Cleanup on page unload
-        window.addEventListener('beforeunload', function() {
-            if (aiUpdateInterval) {
-                clearInterval(aiUpdateInterval);
-            }
+        window.addEventListener('beforeunload', () => {
+            if (aiUpdateInterval) clearInterval(aiUpdateInterval);
             saveGameProgress();
         });
 
-        // Close modal when clicking outside
-        document.addEventListener('click', function(e) {
-            const modal = document.getElementById('victoryModal');
-            if (e.target === modal) {
-                closeModal();
-            }
-        });
-
-        // Add touch support for mobile
-        document.addEventListener('touchstart', function(e) {
-            // Enable touch interactions for mobile devices
-        });
-    </script>
-    <!-- Add this before closing </body> tag in all HTML files -->
-<script>
-// Global error handling
-window.addEventListener('error', function(e) {
-    console.error('Script error:', e.error);
-    // Don't break the app on errors
-});
-
-// Handle missing API gracefully
-if (typeof window !== 'undefined' && !window.zkAPI) {
-    // Import the mock API
-    import('./api/config.js').then(module => {
-        window.zkAPI = module.mockAPI;
-    }).catch(err => {
-        console.warn('Failed to load API config, using fallback');
-        // Fallback API
-        window.zkAPI = {
-            auth: {
-                login: () => Promise.resolve({ success: true, data: { token: 'mock_token' } }),
-                logout: () => Promise.resolve({ success: true })
-            },
-            user: {
-                getProfile: () => Promise.resolve({ success: true, data: {} }),
-                updateProfile: () => Promise.resolve({ success: true }),
-                getStats: () => Promise.resolve({ success: true, data: {} }),
-                getAchievements: () => Promise.resolve({ success: true, data: [] }),
-                getGameHistory: () => Promise.resolve({ success: true, data: { sessions: [] } })
-            },
-            games: {
-                submitScore: () => Promise.resolve({ success: true, data: {} })
+        // Performance optimization
+        let lastUpdateTime = 0;
+        const originalUpdateProgress = updateRaceProgress;
+        updateRaceProgress = function() {
+            const now = Date.now();
+            if (now - lastUpdateTime > 16) { // ~60fps
+                lastUpdateTime = now;
+                originalUpdateProgress();
             }
         };
-    });
-}
 
-// Handle localStorage errors
-function safeLocalStorage(key, value = null) {
-    try {
-        if (value === null) {
-            return localStorage.getItem(key);
-        } else {
-            localStorage.setItem(key, value);
+        // Achievement system
+        function checkAchievements() {
+            const achievements = [];
+            
+            if (gameState.racesWon >= 5) achievements.push("Racing Veteran");
+            if (gameState.totalPoints >= 10000) achievements.push("Point Master");
+            if (gameState.bestTime && gameState.bestTime < 30) achievements.push("Speed Demon");
+            if (gameState.combo >= 5) achievements.push("Combo King");
+            
+            return achievements;
         }
-    } catch (e) {
-        console.warn('localStorage error:', e);
-        return null;
-    }
-}
 
-// Replace localStorage calls with safe version if needed
-if (typeof window !== 'undefined' && !window.localStorage) {
-    window.localStorage = {
-        getItem: () => null,
-        setItem: () => {},
-        removeItem: () => {},
-        clear: () => {}
-    };
-}
-</script>
+        // Share functionality
+        function shareResult() {
+            const text = `I just won a ZK Proof Racing Championship! 🏆\n\nTime: ${document.getElementById('raceTime').textContent}\nPoints: ${gameState.totalPoints}\nRaces Won: ${gameState.racesWon}\n\nCan you beat my time? Play now!`;
+            
+            if (navigator.share) {
+                navigator.share({
+                    title: 'ZK Proof Racing Victory',
+                    text: text,
+                    url: window.location.href
+                });
+            } else if (navigator.clipboard) {
+                navigator.clipboard.writeText(text + '\n' + window.location.href);
+                alert('Result copied to clipboard!');
+            }
+        }
+
+        // Initialize theme
+        function initializeTheme() {
+            const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+            if (!prefersDark) {
+                // Could add light theme support here
+            }
+        }
+
+        // Call initialization
+        document.addEventListener('DOMContentLoaded', () => {
+            initializeTheme();
+        });
+    </script>
 </body>
 </html>

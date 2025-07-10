@@ -4,7 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Proof Puzzle - Learn ZK Through Gaming</title>
-    <link rel="stylesheet" href="css/styles.css">
     <style>
         * {
             margin: 0;
@@ -26,8 +25,6 @@
             --text-dim: #94a3b8;
             --border: #475569;
             --gradient: linear-gradient(135deg, var(--primary), var(--secondary));
-            --success-glow: rgba(16, 185, 129, 0.3);
-            --error-glow: rgba(239, 68, 68, 0.3);
         }
 
         body {
@@ -99,6 +96,12 @@
             opacity: 0.03;
             background-image: 
                 repeating-linear-gradient(45deg, transparent, transparent 35px, rgba(255,255,255,.1) 35px, rgba(255,255,255,.1) 70px);
+            animation: bgMove 20s linear infinite;
+        }
+
+        @keyframes bgMove {
+            0% { transform: translateX(0); }
+            100% { transform: translateX(100px); }
         }
 
         /* Header */
@@ -125,7 +128,7 @@
         .game-title {
             font-size: 1.5rem;
             font-weight: bold;
-            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            background: var(--gradient);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
         }
@@ -194,9 +197,9 @@
 
         .progress-fill {
             height: 100%;
-            background: linear-gradient(90deg, var(--primary), var(--secondary));
+            background: var(--gradient);
             transition: width 0.5s ease;
-            box-shadow: 0 0 10px var(--primary);
+            box-shadow: 0 0 10px rgba(99, 102, 241, 0.5);
         }
 
         .levels-list {
@@ -217,7 +220,7 @@
             border: 2px solid transparent;
         }
 
-        .level-item:hover {
+        .level-item:hover:not(.locked) {
             border-color: var(--primary);
             transform: translateX(5px);
         }
@@ -229,6 +232,11 @@
 
         .level-item.completed {
             border-color: var(--accent);
+        }
+
+        .level-item.locked {
+            opacity: 0.5;
+            cursor: not-allowed;
         }
 
         .level-icon {
@@ -266,7 +274,7 @@
         .level-title {
             font-size: 2rem;
             margin-bottom: 0.5rem;
-            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            background: var(--gradient);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
         }
@@ -330,6 +338,7 @@
             gap: 1rem;
             margin-top: 2rem;
             justify-content: center;
+            flex-wrap: wrap;
         }
 
         .btn {
@@ -350,7 +359,7 @@
             color: white;
         }
 
-        .btn-primary:hover {
+        .btn-primary:hover:not(:disabled) {
             background: var(--primary-dark);
             transform: translateY(-2px);
             box-shadow: 0 10px 20px rgba(99, 102, 241, 0.3);
@@ -362,8 +371,9 @@
             border: 1px solid var(--border);
         }
 
-        .btn-secondary:hover {
+        .btn-secondary:hover:not(:disabled) {
             border-color: var(--primary);
+            background: rgba(99, 102, 241, 0.1);
         }
 
         .btn:disabled {
@@ -386,8 +396,7 @@
             padding: 1.5rem;
             text-align: center;
             transition: all 0.3s;
-            position: relative;
-            overflow: hidden;
+            cursor: pointer;
         }
 
         .proof-step.active {
@@ -396,14 +405,19 @@
         }
 
         @keyframes pulse {
-            0% { box-shadow: 0 0 0 0 var(--primary); }
+            0% { box-shadow: 0 0 0 0 rgba(99, 102, 241, 0.4); }
             50% { box-shadow: 0 0 20px 5px rgba(99, 102, 241, 0.3); }
-            100% { box-shadow: 0 0 0 0 var(--primary); }
+            100% { box-shadow: 0 0 0 0 rgba(99, 102, 241, 0.4); }
         }
 
         .proof-step.success {
             border-color: var(--accent);
             background: rgba(16, 185, 129, 0.1);
+        }
+
+        .proof-step.error {
+            border-color: var(--error);
+            background: rgba(239, 68, 68, 0.1);
         }
 
         .proof-step-icon {
@@ -422,40 +436,43 @@
             font-size: 0.9rem;
         }
 
-        /* Success Animation */
-        .success-overlay {
+        /* Success Modal */
+        .modal {
             position: fixed;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
-            background: rgba(16, 185, 129, 0.1);
-            display: flex;
-            justify-content: center;
+            background: rgba(0, 0, 0, 0.8);
+            display: none;
             align-items: center;
+            justify-content: center;
             z-index: 1000;
-            opacity: 0;
-            pointer-events: none;
-            transition: opacity 0.3s;
         }
 
-        .success-overlay.show {
-            opacity: 1;
-            pointer-events: all;
+        .modal.show {
+            display: flex;
         }
 
-        .success-modal {
+        .modal-content {
             background: var(--dark-lighter);
             border: 2px solid var(--accent);
             border-radius: 1rem;
             padding: 3rem;
             text-align: center;
-            transform: scale(0.9);
-            transition: transform 0.3s;
+            max-width: 500px;
+            animation: modalZoom 0.3s ease;
         }
 
-        .success-overlay.show .success-modal {
-            transform: scale(1);
+        @keyframes modalZoom {
+            from {
+                transform: scale(0.8);
+                opacity: 0;
+            }
+            to {
+                transform: scale(1);
+                opacity: 1;
+            }
         }
 
         .success-icon {
@@ -466,7 +483,7 @@
 
         @keyframes bounce {
             0%, 100% { transform: translateY(0); }
-            50% { transform: translateY(-20px); }
+            50% { transform: translateY(-10px); }
         }
 
         /* Hints System */
@@ -511,21 +528,6 @@
             color: var(--text);
         }
 
-        /* Loading Animation */
-        .loader {
-            display: inline-block;
-            width: 20px;
-            height: 20px;
-            border: 2px solid var(--border);
-            border-top-color: var(--primary);
-            border-radius: 50%;
-            animation: spin 1s linear infinite;
-        }
-
-        @keyframes spin {
-            to { transform: rotate(360deg); }
-        }
-
         /* Mobile Responsive */
         @media (max-width: 768px) {
             .game-container {
@@ -559,17 +561,17 @@
 <body>
     <!-- Navigation -->
     <nav class="nav-header">
-    <div class="nav-content">
-        <a href="/games" class="logo">
-            <span>🎮</span>
-            <span>ZK Gaming Hub</span>
-        </a>
-        <div class="nav-links">
-            <a href="/games.html" class="nav-link">← Back to Games</a>
-            <a href="/home.html" class="nav-link">Home</a>
+        <div class="nav-content">
+            <a href="/games" class="logo">
+                <span>🎮</span>
+                <span>ZK Gaming Hub</span>
+            </a>
+            <div class="nav-links">
+                <a href="/games" class="nav-link">← Back to Games</a>
+                <a href="/" class="nav-link">Home</a>
+            </div>
         </div>
-    </div>
-</nav>
+    </nav>
 
     <!-- Background Pattern -->
     <div class="bg-pattern"></div>
@@ -611,7 +613,7 @@
             </div>
 
             <div class="levels-list">
-                <div class="level-item active" data-level="1">
+                <div class="level-item active" data-level="1" onclick="selectLevel(1)">
                     <span class="level-icon">🔑</span>
                     <div class="level-info">
                         <div class="level-name">Secret Knowledge</div>
@@ -619,7 +621,7 @@
                     </div>
                 </div>
                 
-                <div class="level-item" data-level="2">
+                <div class="level-item locked" data-level="2" onclick="selectLevel(2)">
                     <span class="level-icon">🎭</span>
                     <div class="level-info">
                         <div class="level-name">Hidden Identity</div>
@@ -627,7 +629,7 @@
                     </div>
                 </div>
                 
-                <div class="level-item" data-level="3">
+                <div class="level-item locked" data-level="3" onclick="selectLevel(3)">
                     <span class="level-icon">🔐</span>
                     <div class="level-info">
                         <div class="level-name">Commitment Schemes</div>
@@ -635,7 +637,7 @@
                     </div>
                 </div>
                 
-                <div class="level-item" data-level="4">
+                <div class="level-item locked" data-level="4" onclick="selectLevel(4)">
                     <span class="level-icon">✅</span>
                     <div class="level-info">
                         <div class="level-name">Proof Verification</div>
@@ -643,7 +645,7 @@
                     </div>
                 </div>
                 
-                <div class="level-item" data-level="5">
+                <div class="level-item locked" data-level="5" onclick="selectLevel(5)">
                     <span class="level-icon">🏆</span>
                     <div class="level-info">
                         <div class="level-name">Master Challenge</div>
@@ -663,61 +665,14 @@
             </div>
 
             <div class="puzzle-container" id="puzzle-container">
-                <!-- Level 1: Introduction -->
-                <div class="tutorial-box">
-                    <h3>🎯 Your Mission</h3>
-                    <p>
-                        Alice knows a secret number. She wants to prove to Bob that she knows it without telling him what it is.
-                        Help Alice create a Zero-Knowledge proof!
-                    </p>
-                </div>
-
-                <div class="proof-visual">
-                    <div class="proof-step" id="step-secret">
-                        <div class="proof-step-icon">🤫</div>
-                        <div class="proof-step-title">Secret</div>
-                        <div class="proof-step-value">Hidden</div>
-                    </div>
-                    
-                    <div class="proof-step" id="step-computation">
-                        <div class="proof-step-icon">🔧</div>
-                        <div class="proof-step-title">Computation</div>
-                        <div class="proof-step-value">Waiting...</div>
-                    </div>
-                    
-                    <div class="proof-step" id="step-proof">
-                        <div class="proof-step-icon">📜</div>
-                        <div class="proof-step-title">Proof</div>
-                        <div class="proof-step-value">Not generated</div>
-                    </div>
-                </div>
-
-                <div class="input-group">
-                    <label class="input-label" for="secret-input">Enter Alice's secret number (1-100):</label>
-                    <input type="number" id="secret-input" class="game-input" placeholder="Enter a number between 1 and 100" min="1" max="100">
-                </div>
-
-                <div class="hint-box" id="hint-box">
-                    💡 Hint: In real ZK proofs, the secret is never sent directly. Instead, we create a mathematical proof that we know it!
-                </div>
-
-                <div class="button-group">
-                    <button class="btn btn-secondary" onclick="showHint()">
-                        <span>💡</span>
-                        <span>Need a Hint?</span>
-                    </button>
-                    <button class="btn btn-primary" onclick="generateProof()">
-                        <span>🚀</span>
-                        <span>Generate Proof</span>
-                    </button>
-                </div>
+                <!-- Dynamic content will be loaded here -->
             </div>
         </main>
     </div>
 
-    <!-- Success Overlay -->
-    <div class="success-overlay" id="success-overlay">
-        <div class="success-modal">
+    <!-- Success Modal -->
+    <div class="modal" id="successModal">
+        <div class="modal-content">
             <div class="success-icon">🎉</div>
             <h2>Level Complete!</h2>
             <p>You've learned how Zero-Knowledge proofs work!</p>
@@ -729,6 +684,24 @@
         </div>
     </div>
 
+    <!-- Game Complete Modal -->
+    <div class="modal" id="gameCompleteModal">
+        <div class="modal-content">
+            <div class="success-icon">🏆</div>
+            <h2>Congratulations!</h2>
+            <p>You've mastered the basics of Zero-Knowledge proofs!</p>
+            <div style="margin: 2rem 0; padding: 1rem; background: var(--dark-card); border-radius: 0.5rem;">
+                <div>Final Score: <span id="finalScore">0</span></div>
+                <div>Time: <span id="finalTime">00:00</span></div>
+                <div>Efficiency: <span id="efficiency">100%</span></div>
+            </div>
+            <div class="button-group">
+                <button class="btn btn-primary" onclick="shareResults()">Share Results</button>
+                <button class="btn btn-secondary" onclick="playAgain()">Play Again</button>
+            </div>
+        </div>
+    </div>
+
     <script>
         // Game State
         let gameState = {
@@ -736,24 +709,16 @@
             score: 0,
             streak: 0,
             timeElapsed: 0,
-            completedLevels: [],
+            completedLevels: JSON.parse(localStorage.getItem('proof-puzzle-completed') || '[]'),
             hintsUsed: 0,
-            commitment: null
+            commitment: null,
+            verificationCount: 0,
+            correctVerifications: 0
         };
 
         // Timer
         let timerInterval;
         
-        function startTimer() {
-            timerInterval = setInterval(() => {
-                gameState.timeElapsed++;
-                const minutes = Math.floor(gameState.timeElapsed / 60);
-                const seconds = gameState.timeElapsed % 60;
-                document.getElementById('timer').textContent = 
-                    `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
-            }, 1000);
-        }
-
         // Level Data
         const levels = {
             1: {
@@ -787,37 +752,90 @@
         document.addEventListener('DOMContentLoaded', () => {
             startTimer();
             loadLevel(1);
+            updateSidebar();
         });
 
-        // Load Level
+        function startTimer() {
+            if (timerInterval) clearInterval(timerInterval);
+            timerInterval = setInterval(() => {
+                gameState.timeElapsed++;
+                const minutes = Math.floor(gameState.timeElapsed / 60);
+                const seconds = gameState.timeElapsed % 60;
+                document.getElementById('timer').textContent = 
+                    `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+            }, 1000);
+        }
+
+        function selectLevel(levelNum) {
+            if (levelNum === 1 || gameState.completedLevels.includes(levelNum - 1)) {
+                gameState.currentLevel = levelNum;
+                loadLevel(levelNum);
+                updateSidebar();
+            }
+        }
+
         function loadLevel(levelNum) {
             const level = levels[levelNum];
             document.getElementById('level-title').textContent = `Level ${levelNum}: ${level.title}`;
             document.getElementById('level-description').textContent = level.description;
             
-            // Update sidebar
-            document.querySelectorAll('.level-item').forEach((item, index) => {
-                item.classList.remove('active');
-                if (index + 1 === levelNum) {
-                    item.classList.add('active');
-                }
-                if (gameState.completedLevels.includes(index + 1)) {
-                    item.classList.add('completed');
-                    item.querySelector('.level-status').textContent = 'Completed ✓';
-                }
-            });
-            
-            // Load level-specific content
             loadLevelContent(levelNum);
         }
 
-        // Load Level Content
         function loadLevelContent(levelNum) {
             const container = document.getElementById('puzzle-container');
             
             switch(levelNum) {
                 case 1:
-                    // Level 1 content is already in HTML
+                    container.innerHTML = `
+                        <div class="tutorial-box">
+                            <h3>🎯 Your Mission</h3>
+                            <p>
+                                Alice knows a secret number. She wants to prove to Bob that she knows it without telling him what it is.
+                                Help Alice create a Zero-Knowledge proof!
+                            </p>
+                        </div>
+
+                        <div class="proof-visual">
+                            <div class="proof-step" id="step-secret">
+                                <div class="proof-step-icon">🤫</div>
+                                <div class="proof-step-title">Secret</div>
+                                <div class="proof-step-value">Hidden</div>
+                            </div>
+                            
+                            <div class="proof-step" id="step-computation">
+                                <div class="proof-step-icon">🔧</div>
+                                <div class="proof-step-title">Computation</div>
+                                <div class="proof-step-value">Waiting...</div>
+                            </div>
+                            
+                            <div class="proof-step" id="step-proof">
+                                <div class="proof-step-icon">📜</div>
+                                <div class="proof-step-title">Proof</div>
+                                <div class="proof-step-value">Not generated</div>
+                            </div>
+                        </div>
+
+                        <div class="input-group">
+                            <label class="input-label" for="secret-input">Enter Alice's secret number (1-100):</label>
+                            <input type="number" id="secret-input" class="game-input" placeholder="Enter a number between 1 and 100" min="1" max="100">
+                        </div>
+
+                        <div class="hint-box" id="hint-box">
+                            💡 Hint: In real ZK proofs, the secret is never sent directly. Instead, we create a mathematical proof that we know it!
+                        </div>
+
+                        <div class="button-group">
+                            <button class="btn btn-secondary" onclick="showHint()">
+                                <span>💡</span>
+                                <span>Need a Hint?</span>
+                            </button>
+                            <button class="btn btn-primary" onclick="generateProof()">
+                                <span>🚀</span>
+                                <span>Generate Proof</span>
+                            </button>
+                        </div>
+                    `;
                     break;
                     
                 case 2:
@@ -914,19 +932,32 @@
                         </div>
                         
                         <div class="proof-visual">
-                            <div class="proof-step" id="step-verify">
-                                <div class="proof-step-icon">🔍</div>
-                                <div class="proof-step-title">Verification</div>
-                                <div class="proof-step-value">Ready</div>
+                            <div class="proof-step" onclick="verifyProof(1, true)">
+                                <div class="proof-step-icon">📜</div>
+                                <div class="proof-step-title">Proof A</div>
+                                <div class="proof-step-value">hash(42) = 0x2a...</div>
+                            </div>
+                            
+                            <div class="proof-step" onclick="verifyProof(2, false)">
+                                <div class="proof-step-icon">📜</div>
+                                <div class="proof-step-title">Proof B</div>
+                                <div class="proof-step-value">hash(13) = 0xff...</div>
+                            </div>
+                            
+                            <div class="proof-step" onclick="verifyProof(3, true)">
+                                <div class="proof-step-icon">📜</div>
+                                <div class="proof-step-title">Proof C</div>
+                                <div class="proof-step-value">hash(99) = 0x63...</div>
                             </div>
                         </div>
                         
-                        <div class="button-group">
-                            <button class="btn btn-primary" onclick="startVerification()">
-                                Start Verification
-                            </button>
-                        </div>
+                        <p style="text-align: center; margin-top: 2rem; color: var(--text-dim);">
+                            Click on each proof to verify it. Find the 2 valid proofs!
+                        </p>
                     `;
+                    // Reset verification counters
+                    gameState.verificationCount = 0;
+                    gameState.correctVerifications = 0;
                     break;
                     
                 case 5:
@@ -934,22 +965,38 @@
                         <div class="tutorial-box">
                             <h3>🎯 Master Challenge</h3>
                             <p>
-                                Use everything you've learned to solve this complex ZK puzzle!
-                                Multiple concepts combined into one challenge.
+                                Complete this complex multi-step ZK challenge that combines all concepts!
                             </p>
                         </div>
                         
                         <div class="proof-visual">
-                            <div class="proof-step" id="step-master">
-                                <div class="proof-step-icon">🏆</div>
-                                <div class="proof-step-title">Master Proof</div>
-                                <div class="proof-step-value">Challenge Ready</div>
+                            <div class="proof-step" id="master-step1">
+                                <div class="proof-step-icon">🔐</div>
+                                <div class="proof-step-title">Step 1</div>
+                                <div class="proof-step-value">Create commitment</div>
+                            </div>
+                            
+                            <div class="proof-step" id="master-step2">
+                                <div class="proof-step-icon">📊</div>
+                                <div class="proof-step-title">Step 2</div>
+                                <div class="proof-step-value">Range proof</div>
+                            </div>
+                            
+                            <div class="proof-step" id="master-step3">
+                                <div class="proof-step-icon">✅</div>
+                                <div class="proof-step-title">Step 3</div>
+                                <div class="proof-step-value">Verify & reveal</div>
                             </div>
                         </div>
                         
+                        <div class="input-group">
+                            <label class="input-label">Enter a number between 50-100:</label>
+                            <input type="number" id="master-input" class="game-input" placeholder="Your secret number" min="50" max="100">
+                        </div>
+                        
                         <div class="button-group">
-                            <button class="btn btn-primary" onclick="startMasterChallenge()">
-                                Begin Master Challenge
+                            <button class="btn btn-primary" onclick="completeMasterChallenge()">
+                                Complete Master Challenge
                             </button>
                         </div>
                     `;
@@ -957,7 +1004,7 @@
             }
         }
 
-        // Generate Proof (Level 1)
+        // Level 1: Generate Proof
         function generateProof() {
             const secretInput = document.getElementById('secret-input');
             const secret = parseInt(secretInput.value);
@@ -990,7 +1037,7 @@
                                 step.classList.add('success');
                                 
                                 // Level complete
-                                levelComplete();
+                                setTimeout(() => levelComplete(), 500);
                             }, 1500);
                         }
                     }
@@ -998,7 +1045,7 @@
             });
         }
 
-        // Generate Range Proof (Level 2)
+        // Level 2: Range Proof
         function generateRangeProof() {
             const ageInput = document.getElementById('age-input');
             const age = parseInt(ageInput.value);
@@ -1022,27 +1069,26 @@
                         resultStep.querySelector('.proof-step-value').textContent = 'Access Granted ✓';
                         resultStep.classList.add('success');
                         
-                        setTimeout(() => {
-                            levelComplete();
-                        }, 1000);
+                        setTimeout(() => levelComplete(), 1000);
                     } else {
                         resultStep.querySelector('.proof-step-value').textContent = 'Access Denied ❌';
-                        resultStep.style.borderColor = 'var(--error)';
+                        resultStep.classList.add('error');
                         
                         setTimeout(() => {
                             alert('You need to be 18 or older. Try again!');
                             // Reset
                             document.querySelectorAll('.proof-step').forEach(step => {
-                                step.classList.remove('active', 'success');
-                                step.style.borderColor = '';
+                                step.classList.remove('active', 'success', 'error');
                             });
+                            document.getElementById('step-age').querySelector('.proof-step-value').textContent = 'Hidden';
+                            document.getElementById('step-result').querySelector('.proof-step-value').textContent = 'Waiting...';
                         }, 1500);
                     }
                 }, 1000);
             }, 1000);
         }
 
-        // Create Commitment (Level 3)
+        // Level 3: Commitment
         function createCommitment() {
             const input = document.getElementById('commitment-input');
             const secret = input.value;
@@ -1055,7 +1101,6 @@
             const commitStep = document.getElementById('step-commit');
             commitStep.classList.add('active');
             
-            // Simulate commitment creation
             setTimeout(() => {
                 const commitment = generateHash(secret);
                 commitStep.querySelector('.proof-step-value').textContent = commitment;
@@ -1077,7 +1122,6 @@
             }, 1500);
         }
         
-        // Reveal Commitment
         function revealCommitment() {
             const revealStep = document.getElementById('step-reveal');
             revealStep.classList.add('active');
@@ -1101,125 +1145,41 @@
                     </div>
                 `;
                 
-                setTimeout(() => {
-                    levelComplete();
-                }, 2000);
+                setTimeout(() => levelComplete(), 2000);
             }, 1000);
         }
 
-        // Start Verification (Level 4)
-        function startVerification() {
-            const container = document.getElementById('puzzle-container');
-            container.innerHTML = `
-                <div class="tutorial-box">
-                    <h3>🎯 Verification Challenge</h3>
-                    <p>
-                        Three proofs are presented below. Can you identify which ones are valid?
-                    </p>
-                </div>
-                
-                <div class="proof-visual">
-                    <div class="proof-step" onclick="verifyProof(1, true)">
-                        <div class="proof-step-icon">📜</div>
-                        <div class="proof-step-title">Proof A</div>
-                        <div class="proof-step-value">hash(42) = 0x2a...</div>
-                    </div>
-                    
-                    <div class="proof-step" onclick="verifyProof(2, false)">
-                        <div class="proof-step-icon">📜</div>
-                        <div class="proof-step-title">Proof B</div>
-                        <div class="proof-step-value">hash(13) = 0xff...</div>
-                    </div>
-                    
-                    <div class="proof-step" onclick="verifyProof(3, true)">
-                        <div class="proof-step-icon">📜</div>
-                        <div class="proof-step-title">Proof C</div>
-                        <div class="proof-step-value">hash(99) = 0x63...</div>
-                    </div>
-                </div>
-                
-                <p style="text-align: center; margin-top: 2rem; color: var(--text-dim);">
-                    Click on each proof to verify it. Find the 2 valid proofs!
-                </p>
-            `;
-        }
-
-        let verificationCount = 0;
-        let correctVerifications = 0;
-
+        // Level 4: Verification
         function verifyProof(proofNum, isValid) {
             const proofStep = event.currentTarget;
-            verificationCount++;
+            gameState.verificationCount++;
             
             if (isValid) {
                 proofStep.classList.add('success');
                 proofStep.querySelector('.proof-step-value').textContent += ' ✓';
-                correctVerifications++;
+                gameState.correctVerifications++;
             } else {
-                proofStep.style.borderColor = 'var(--error)';
+                proofStep.classList.add('error');
                 proofStep.querySelector('.proof-step-value').textContent += ' ❌';
             }
             
             proofStep.style.pointerEvents = 'none';
             
-            if (verificationCount === 3) {
+            if (gameState.verificationCount === 3) {
                 setTimeout(() => {
-                    if (correctVerifications === 2) {
+                    if (gameState.correctVerifications === 2) {
                         levelComplete();
                     } else {
                         alert('Not quite right! Try again.');
-                        startVerification();
-                        verificationCount = 0;
-                        correctVerifications = 0;
+                        gameState.verificationCount = 0;
+                        gameState.correctVerifications = 0;
+                        loadLevelContent(4); // Reload level 4
                     }
                 }, 1000);
             }
         }
 
-        // Start Master Challenge (Level 5)
-        function startMasterChallenge() {
-            const container = document.getElementById('puzzle-container');
-            container.innerHTML = `
-                <div class="tutorial-box">
-                    <h3>🎯 Master Challenge</h3>
-                    <p>
-                        Complete this complex multi-step ZK challenge that combines all concepts!
-                    </p>
-                </div>
-                
-                <div class="proof-visual">
-                    <div class="proof-step" id="master-step1">
-                        <div class="proof-step-icon">🔐</div>
-                        <div class="proof-step-title">Step 1</div>
-                        <div class="proof-step-value">Create commitment</div>
-                    </div>
-                    
-                    <div class="proof-step" id="master-step2">
-                        <div class="proof-step-icon">📊</div>
-                        <div class="proof-step-title">Step 2</div>
-                        <div class="proof-step-value">Range proof</div>
-                    </div>
-                    
-                    <div class="proof-step" id="master-step3">
-                        <div class="proof-step-icon">✅</div>
-                        <div class="proof-step-title">Step 3</div>
-                        <div class="proof-step-value">Verify & reveal</div>
-                    </div>
-                </div>
-                
-                <div class="input-group">
-                    <label class="input-label">Enter a number between 50-100:</label>
-                    <input type="number" id="master-input" class="game-input" placeholder="Your secret number" min="50" max="100">
-                </div>
-                
-                <div class="button-group">
-                    <button class="btn btn-primary" onclick="completeMasterChallenge()">
-                        Complete Master Challenge
-                    </button>
-                </div>
-            `;
-        }
-
+        // Level 5: Master Challenge
         function completeMasterChallenge() {
             const input = document.getElementById('master-input');
             const secret = parseInt(input.value);
@@ -1247,16 +1207,14 @@
                         } else if (stepId === 'master-step3') {
                             step.querySelector('.proof-step-value').textContent = 'Challenge complete ✓';
                             
-                            setTimeout(() => {
-                                levelComplete();
-                            }, 1000);
+                            setTimeout(() => levelComplete(), 1000);
                         }
                     }, 1500);
                 }, index * 2000);
             });
         }
-        
-        // Generate simple hash (for demo purposes)
+
+        // Utility Functions
         function generateHash(input) {
             let hash = 0;
             for (let i = 0; i < input.length; i++) {
@@ -1266,49 +1224,51 @@
             return `0x${Math.abs(hash).toString(16).padStart(8, '0')}`;
         }
 
-        // Show Hint
         function showHint() {
             const hintBox = document.getElementById('hint-box');
             if (hintBox) {
                 hintBox.classList.add('show');
                 gameState.hintsUsed++;
-                updateScore(-5); // Small penalty for using hint
+                updateScore(-5);
             }
         }
 
-        // Level Complete
         function levelComplete() {
-            gameState.completedLevels.push(gameState.currentLevel);
+            if (!gameState.completedLevels.includes(gameState.currentLevel)) {
+                gameState.completedLevels.push(gameState.currentLevel);
+                localStorage.setItem('proof-puzzle-completed', JSON.stringify(gameState.completedLevels));
+            }
+            
             updateScore(100);
             gameState.streak++;
             updateStats();
+            updateSidebar();
             
-            // Show success overlay
-            document.getElementById('success-overlay').classList.add('show');
+            // Check if game is complete
+            if (gameState.currentLevel === 5) {
+                setTimeout(() => {
+                    showGameComplete();
+                }, 1000);
+            } else {
+                // Show level complete modal
+                setTimeout(() => {
+                    document.getElementById('successModal').classList.add('show');
+                }, 1000);
+            }
             
-            // Add confetti effect
             createConfetti();
         }
 
-        // Next Level
         function nextLevel() {
-            document.getElementById('success-overlay').classList.remove('show');
+            document.getElementById('successModal').classList.remove('show');
             
             if (gameState.currentLevel < 5) {
                 gameState.currentLevel++;
                 loadLevel(gameState.currentLevel);
-                
-                // Update progress
-                const progress = (gameState.completedLevels.length / 5) * 100;
-                document.getElementById('progress-bar').style.width = `${progress}%`;
-                document.getElementById('progress-text').textContent = `${Math.round(progress)}%`;
-            } else {
-                // Game complete
-                showGameComplete();
+                updateProgress();
             }
         }
 
-        // Update Score
         function updateScore(points) {
             gameState.score += points;
             document.getElementById('score').textContent = gameState.score;
@@ -1324,75 +1284,53 @@
             }, 300);
         }
 
-        // Update Stats
         function updateStats() {
             document.getElementById('streak').textContent = gameState.streak;
         }
 
-        // Show Game Complete
+        function updateSidebar() {
+            document.querySelectorAll('.level-item').forEach((item, index) => {
+                const levelNum = index + 1;
+                item.classList.remove('active', 'completed', 'locked');
+                
+                if (levelNum === gameState.currentLevel) {
+                    item.classList.add('active');
+                } else if (gameState.completedLevels.includes(levelNum)) {
+                    item.classList.add('completed');
+                    item.querySelector('.level-status').textContent = 'Completed ✓';
+                } else if (levelNum === 1 || gameState.completedLevels.includes(levelNum - 1)) {
+                    // Unlocked
+                    item.querySelector('.level-status').textContent = 'Available';
+                } else {
+                    item.classList.add('locked');
+                    item.querySelector('.level-status').textContent = 'Locked';
+                }
+            });
+        }
+
+        function updateProgress() {
+            const progress = (gameState.completedLevels.length / 5) * 100;
+            document.getElementById('progress-bar').style.width = `${progress}%`;
+            document.getElementById('progress-text').textContent = `${Math.round(progress)}%`;
+        }
+
         function showGameComplete() {
-            const container = document.querySelector('.game-area');
             const totalTime = formatTime(gameState.timeElapsed);
             const efficiency = Math.round((500 - gameState.hintsUsed * 10) / 5);
             
-            container.innerHTML = `
-                <div style="text-align: center; padding: 3rem;">
-                    <h1 style="font-size: 3rem; margin-bottom: 2rem;">
-                        🏆 Congratulations!
-                    </h1>
-                    <p style="font-size: 1.5rem; color: var(--text-dim); margin-bottom: 3rem;">
-                        You've mastered the basics of Zero-Knowledge proofs!
-                    </p>
-                    
-                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 2rem; max-width: 600px; margin: 0 auto 3rem;">
-                        <div style="background: var(--dark-lighter); padding: 2rem; border-radius: 1rem; border: 2px solid var(--border);">
-                            <div style="font-size: 2rem; color: var(--primary); margin-bottom: 0.5rem;">${gameState.score}</div>
-                            <div>Total Score</div>
-                        </div>
-                        <div style="background: var(--dark-lighter); padding: 2rem; border-radius: 1rem; border: 2px solid var(--border);">
-                            <div style="font-size: 2rem; color: var(--accent); margin-bottom: 0.5rem;">${totalTime}</div>
-                            <div>Time Taken</div>
-                        </div>
-                        <div style="background: var(--dark-lighter); padding: 2rem; border-radius: 1rem; border: 2px solid var(--border);">
-                            <div style="font-size: 2rem; color: var(--secondary); margin-bottom: 0.5rem;">${efficiency}%</div>
-                            <div>Efficiency</div>
-                        </div>
-                    </div>
-                    
-                    <div class="button-group" style="margin-top: 3rem;">
-                        <button class="btn btn-primary" onclick="shareResults()">
-                            Share Results
-                        </button>
-                        <button class="btn btn-secondary" onclick="playAgain()">
-                            Play Again
-                        </button>
-                        <button class="btn btn-secondary" onclick="window.location.href='games.html'">
-                            Back to Games
-                        </button>
-                    </div>
-                    
-                    <div style="margin-top: 3rem; padding: 2rem; background: var(--dark-lighter); border-radius: 1rem; border: 1px solid var(--border);">
-                        <h3 style="color: var(--primary); margin-bottom: 1rem;">🎓 What You've Learned</h3>
-                        <ul style="text-align: left; max-width: 600px; margin: 0 auto; list-style: none;">
-                            <li style="margin-bottom: 0.5rem;">✓ Zero-Knowledge proofs let you prove knowledge without revealing it</li>
-                            <li style="margin-bottom: 0.5rem;">✓ Range proofs verify values are within bounds privately</li>
-                            <li style="margin-bottom: 0.5rem;">✓ Commitments bind you to values without revealing them early</li>
-                            <li style="margin-bottom: 0.5rem;">✓ Proofs can be verified by anyone without knowing the secret</li>
-                            <li style="margin-bottom: 0.5rem;">✓ Complex ZK systems combine multiple proof techniques</li>
-                        </ul>
-                    </div>
-                </div>
-            `;
+            document.getElementById('finalScore').textContent = gameState.score;
+            document.getElementById('finalTime').textContent = totalTime;
+            document.getElementById('efficiency').textContent = efficiency + '%';
+            
+            document.getElementById('gameCompleteModal').classList.add('show');
         }
 
-        // Format Time
         function formatTime(seconds) {
             const mins = Math.floor(seconds / 60);
             const secs = seconds % 60;
             return `${mins}:${secs.toString().padStart(2, '0')}`;
         }
 
-        // Share Results
         function shareResults() {
             const text = `I just completed ZK Proof Puzzle with a score of ${gameState.score}! 🏆\n\nCan you beat my time of ${formatTime(gameState.timeElapsed)}?\n\nPlay now: ${window.location.origin}`;
             
@@ -1402,17 +1340,17 @@
                     text: text,
                     url: window.location.origin
                 });
-            } else {
-                // Fallback - copy to clipboard
+            } else if (navigator.clipboard) {
                 navigator.clipboard.writeText(text).then(() => {
                     alert('Results copied to clipboard!');
                 }).catch(() => {
                     alert('Share this: ' + text);
                 });
+            } else {
+                alert('Share this: ' + text);
             }
         }
 
-        // Play Again
         function playAgain() {
             gameState = {
                 currentLevel: 1,
@@ -1421,8 +1359,12 @@
                 timeElapsed: 0,
                 completedLevels: [],
                 hintsUsed: 0,
-                commitment: null
+                commitment: null,
+                verificationCount: 0,
+                correctVerifications: 0
             };
+            
+            localStorage.removeItem('proof-puzzle-completed');
             
             // Reset timer
             clearInterval(timerInterval);
@@ -1430,22 +1372,23 @@
             
             loadLevel(1);
             updateStats();
+            updateSidebar();
+            updateProgress();
+            
             document.getElementById('score').textContent = '0';
             document.getElementById('timer').textContent = '00:00';
-            document.getElementById('progress-bar').style.width = '0%';
-            document.getElementById('progress-text').textContent = '0%';
+            document.getElementById('gameCompleteModal').classList.remove('show');
         }
 
-        // Add confetti effect for success
         function createConfetti() {
             const colors = ['#6366f1', '#8b5cf6', '#10b981', '#f59e0b'];
-            const confettiCount = 50;
+            const confettiCount = 30;
             
             for (let i = 0; i < confettiCount; i++) {
                 const confetti = document.createElement('div');
                 confetti.style.position = 'fixed';
-                confetti.style.width = '10px';
-                confetti.style.height = '10px';
+                confetti.style.width = '8px';
+                confetti.style.height = '8px';
                 confetti.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
                 confetti.style.left = Math.random() * 100 + '%';
                 confetti.style.top = '-10px';
@@ -1453,6 +1396,7 @@
                 confetti.style.transform = `rotate(${Math.random() * 360}deg)`;
                 confetti.style.zIndex = '9999';
                 confetti.style.pointerEvents = 'none';
+                confetti.style.borderRadius = '50%';
                 
                 document.body.appendChild(confetti);
                 
@@ -1460,7 +1404,7 @@
                 let pos = -10;
                 let side = Math.random() * 2 - 1;
                 const fall = setInterval(() => {
-                    pos += 2;
+                    pos += 3;
                     confetti.style.top = pos + 'px';
                     confetti.style.left = parseFloat(confetti.style.left) + side + '%';
                     confetti.style.transform = `rotate(${Math.random() * 360}deg)`;
@@ -1473,83 +1417,34 @@
             }
         }
 
-        // Add keyboard shortcuts
+        // Event Listeners
         document.addEventListener('keydown', (e) => {
             if (e.key === 'Enter') {
-                // Find and click the primary button
                 const primaryBtn = document.querySelector('.btn-primary:not([disabled])');
                 if (primaryBtn) {
                     primaryBtn.click();
                 }
             } else if (e.key === 'h' || e.key === 'H') {
-                // Show hint
                 showHint();
             }
         });
 
+        // Close modals when clicking outside
+        document.addEventListener('click', (e) => {
+            if (e.target.classList.contains('modal')) {
+                e.target.classList.remove('show');
+            }
+        });
+
         // Error handling
-        window.addEventListener('error', function(e) {
-            console.error('Game error:', e.error);
+        window.addEventListener('error', (e) => {
+            console.error('Proof Puzzle error:', e.error);
+        });
+
+        // Initialize progress on load
+        document.addEventListener('DOMContentLoaded', () => {
+            updateProgress();
         });
     </script>
-    <!-- Add this before closing </body> tag in all HTML files -->
-<script>
-// Global error handling
-window.addEventListener('error', function(e) {
-    console.error('Script error:', e.error);
-    // Don't break the app on errors
-});
-
-// Handle missing API gracefully
-if (typeof window !== 'undefined' && !window.zkAPI) {
-    // Import the mock API
-    import('./api/config.js').then(module => {
-        window.zkAPI = module.mockAPI;
-    }).catch(err => {
-        console.warn('Failed to load API config, using fallback');
-        // Fallback API
-        window.zkAPI = {
-            auth: {
-                login: () => Promise.resolve({ success: true, data: { token: 'mock_token' } }),
-                logout: () => Promise.resolve({ success: true })
-            },
-            user: {
-                getProfile: () => Promise.resolve({ success: true, data: {} }),
-                updateProfile: () => Promise.resolve({ success: true }),
-                getStats: () => Promise.resolve({ success: true, data: {} }),
-                getAchievements: () => Promise.resolve({ success: true, data: [] }),
-                getGameHistory: () => Promise.resolve({ success: true, data: { sessions: [] } })
-            },
-            games: {
-                submitScore: () => Promise.resolve({ success: true, data: {} })
-            }
-        };
-    });
-}
-
-// Handle localStorage errors
-function safeLocalStorage(key, value = null) {
-    try {
-        if (value === null) {
-            return localStorage.getItem(key);
-        } else {
-            localStorage.setItem(key, value);
-        }
-    } catch (e) {
-        console.warn('localStorage error:', e);
-        return null;
-    }
-}
-
-// Replace localStorage calls with safe version if needed
-if (typeof window !== 'undefined' && !window.localStorage) {
-    window.localStorage = {
-        getItem: () => null,
-        setItem: () => {},
-        removeItem: () => {},
-        clear: () => {}
-    };
-}
-</script>
 </body>
 </html>

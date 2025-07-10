@@ -5,8 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Memory Matrix - Prove Your Memory Without Revealing</title>
     <link rel="stylesheet" href="css/styles.css">
-    <!-- ADD AUTH FLOW SCRIPT -->
-    <script src="js/auth-flow.js"></script>
     
     <style>
         * {
@@ -35,10 +33,10 @@
             background: var(--dark);
             color: var(--text);
             min-height: 100vh;
-            padding-top: 80px; /* Add padding for navigation */
+            padding-top: 80px;
         }
 
-        /* ADD NAVIGATION STYLES */
+        /* Navigation */
         .nav-header {
             background: rgba(30, 41, 59, 0.95);
             backdrop-filter: blur(10px);
@@ -86,22 +84,7 @@
             color: var(--text);
         }
 
-        .logout-btn {
-            padding: 0.5rem 1rem;
-            background: transparent;
-            border: 1px solid var(--border);
-            border-radius: 0.5rem;
-            color: var(--text);
-            cursor: pointer;
-            transition: all 0.3s;
-        }
-
-        .logout-btn:hover {
-            border-color: var(--error);
-            color: var(--error);
-        }
-
-        /* ADJUST MAIN CONTAINER FOR NAVIGATION */
+        /* Main Container */
         .game-container {
             max-width: 900px;
             width: 100%;
@@ -112,7 +95,7 @@
             padding: 2rem;
             box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5);
             margin: 2rem auto;
-            display: block; /* Fix centering issue */
+            display: block;
         }
 
         /* Background Animation */
@@ -392,7 +375,7 @@
         /* Score Display */
         .score-display {
             position: fixed;
-            top: 100px; /* Adjust for navigation */
+            top: 100px;
             right: 2rem;
             background: var(--dark-lighter);
             border: 2px solid var(--border);
@@ -504,7 +487,7 @@
     </style>
 </head>
 <body>
-    <!-- ADD NAVIGATION -->
+    <!-- Navigation -->
     <nav class="nav-header">
         <div class="nav-content">
             <a href="/games" class="logo">
@@ -512,9 +495,8 @@
                 <span>ZK Gaming Hub</span>
             </a>
             <div class="nav-links">
-                <a href="/games.html" class="nav-link">← Back to Games</a>
-                <a href="/home.html" class="nav-link">Home</a>
-                <button class="logout-btn" onclick="logout()">Logout</button>
+                <a href="/games" class="nav-link">← Back to Games</a>
+                <a href="/" class="nav-link">Home</a>
             </div>
         </div>
     </nav>
@@ -685,11 +667,6 @@
 
         // Initialize
         document.addEventListener('DOMContentLoaded', () => {
-            // Check authentication before loading game
-            if (!checkAuth()) {
-                return; // Will be redirected by auth flow
-            }
-            
             createBackgroundEffect();
             createGrid();
             updateUI();
@@ -977,7 +954,7 @@
             document.getElementById('statusTimer').textContent = '';
         }
 
-        // Show pattern hint (costs a life) - FIXED FUNCTION NAME
+        // Show pattern hint (costs a life)
         function showHint() {
             if (!gameState.isPlayerTurn || gameState.lives <= 1) return;
             
@@ -1122,65 +1099,8 @@
                 callback();
             }
         }
+
+        console.log('🧠 Memory Matrix - Ready to test your memory!');
     </script>
-    <!-- Add this before closing </body> tag in all HTML files -->
-<script>
-// Global error handling
-window.addEventListener('error', function(e) {
-    console.error('Script error:', e.error);
-    // Don't break the app on errors
-});
-
-// Handle missing API gracefully
-if (typeof window !== 'undefined' && !window.zkAPI) {
-    // Import the mock API
-    import('./api/config.js').then(module => {
-        window.zkAPI = module.mockAPI;
-    }).catch(err => {
-        console.warn('Failed to load API config, using fallback');
-        // Fallback API
-        window.zkAPI = {
-            auth: {
-                login: () => Promise.resolve({ success: true, data: { token: 'mock_token' } }),
-                logout: () => Promise.resolve({ success: true })
-            },
-            user: {
-                getProfile: () => Promise.resolve({ success: true, data: {} }),
-                updateProfile: () => Promise.resolve({ success: true }),
-                getStats: () => Promise.resolve({ success: true, data: {} }),
-                getAchievements: () => Promise.resolve({ success: true, data: [] }),
-                getGameHistory: () => Promise.resolve({ success: true, data: { sessions: [] } })
-            },
-            games: {
-                submitScore: () => Promise.resolve({ success: true, data: {} })
-            }
-        };
-    });
-}
-
-// Handle localStorage errors
-function safeLocalStorage(key, value = null) {
-    try {
-        if (value === null) {
-            return localStorage.getItem(key);
-        } else {
-            localStorage.setItem(key, value);
-        }
-    } catch (e) {
-        console.warn('localStorage error:', e);
-        return null;
-    }
-}
-
-// Replace localStorage calls with safe version if needed
-if (typeof window !== 'undefined' && !window.localStorage) {
-    window.localStorage = {
-        getItem: () => null,
-        setItem: () => {},
-        removeItem: () => {},
-        clear: () => {}
-    };
-}
-</script>
 </body>
 </html>
