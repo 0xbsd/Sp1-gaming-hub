@@ -5,6 +5,7 @@
     { "source": "/proof-puzzle", "destination": "/proof-puzzle.html" },
     { "source": "/zk-sudoku", "destination": "/sudoku-game.html" },
     { "source": "/memory-matrix", "destination": "/memory-matrix.html" },
+    { "source": "/zk-flow-state", "destination": "/zk-flow-state.html" },
     { "source": "/proof-racing", "destination": "/proof-racing.html" },
     { "source": "/coming-soon", "destination": "/coming-soon.html" }
   ],

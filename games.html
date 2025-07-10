@@ -205,8 +205,8 @@
                 <span>ZK Gaming Hub</span>
             </a>
             <div class="nav-links">
-                <a href="/" class="nav-link">← Back to Home</a>
-                <a href="coming-soon.html" class="nav-link">What's Coming</a>
+                <a href="/index.html" class="nav-link">← Back to Home</a>
+                <a href="/coming-soon.html" class="nav-link">What's Coming</a>
             </div>
         </div>
     </header>
@@ -220,7 +220,7 @@
         </section>
 
         <div class="games-grid">
-            <a href="proof-puzzle.html" class="game-card">
+            <a href="/proof-puzzle" class="game-card">
                 <div class="game-image">
                     🧩
                     <span class="game-badge badge-easy">Beginner</span>
@@ -237,7 +237,7 @@
                 </div>
             </a>
 
-            <a href="sudoku-game.html" class="game-card">
+            <a href="/zk-sudoku" class="game-card">
                 <div class="game-image">
                     🔢
                     <span class="game-badge badge-medium">Intermediate</span>
@@ -254,7 +254,7 @@
                 </div>
             </a>
 
-            <a href="memory-matrix.html" class="game-card">
+            <a href="/memory-matrix" class="game-card">
                 <div class="game-image">
                     🧠
                     <span class="game-badge badge-medium">Intermediate</span>
@@ -271,7 +271,24 @@
                 </div>
             </a>
 
-            <a href="proof-racing.html" class="game-card">
+            <a href="/zk-flow-state" class="game-card">
+                <div class="game-image">
+                    🔄
+                    <span class="game-badge badge-medium">Intermediate</span>
+                </div>
+                <div class="game-info">
+                    <h3 class="game-title">ZK Flow State</h3>
+                    <p class="game-description">
+                        Connect proof paths from prover to verifier. Learn how ZK circuits create valid proof flows.
+                    </p>
+                    <div class="game-tags">
+                        <span class="game-tag">Circuits</span>
+                        <span class="game-tag">Logic</span>
+                    </div>
+                </div>
+            </a>
+
+            <a href="/proof-racing" class="game-card">
                 <div class="game-image">
                     🏁
                     <span class="game-badge badge-hard">Advanced</span>
@@ -294,13 +311,12 @@
             <p style="color: #94a3b8; margin-bottom: 2rem;">
                 We're working on multiplayer battles, advanced ZK protocols, and tournament modes!
             </p>
-            <a href="coming-soon.html" style="color: #6366f1; text-decoration: none; font-weight: 500;">
+            <a href="/coming-soon" style="color: #6366f1; text-decoration: none; font-weight: 500;">
                 See What's Coming Next →
             </a>
         </section>
     </div>
 
-    <script src="js/zkapi-mock.js"></script>
     <script>
         // Simple analytics (no auth needed)
         function trackGameClick(gameId) {
