@@ -8,7 +8,8 @@
     { "source": "/zk-flow-state", "destination": "/zk-flow-state.html" },
     { "source": "/proof-racing", "destination": "/proof-racing.html" },
     { "source": "/coming-soon", "destination": "/coming-soon.html" },
-    { "source": "/zk-xo", "destination": "/zk_xo_game.html" }
+    { "source": "/zk-xo", "destination": "/zk_xo_game.html" },
+    { "source": "/zk-rps", "destination": "/zk_rps_game.html" }
   ],
   "cleanUrls": true,
   "trailingSlash": false
