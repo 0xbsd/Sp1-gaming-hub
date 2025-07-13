@@ -4,6 +4,17 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ZK Gaming Hub - Choose Your Game</title>
+    <meta name="description" content="Discover and play interactive Zero-Knowledge games! Learn cryptography, commitment schemes, and privacy tech through fun, educational browser games. ZK Gaming Hub is your portal to mastering ZK proofs while having fun.">
+    <!-- Open Graph Meta Tags for SEO & Social Sharing -->
+    <meta property="og:title" content="ZK Gaming Hub - Play Zero-Knowledge Games Online">
+    <meta property="og:description" content="Play interactive Zero-Knowledge games and learn cryptography through fun browser challenges. Prove your skills, protect your secrets!">
+    <meta property="og:image" content="images/games/zk_rps.png">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://sp1-gaming-hub.vercel.app/games.html">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="ZK Gaming Hub - Play Zero-Knowledge Games Online">
+    <meta name="twitter:description" content="Play interactive Zero-Knowledge games and learn cryptography through fun browser challenges. Prove your skills, protect your secrets!">
+    <meta name="twitter:image" content="images/games/zk_rps.png">
     <link rel="stylesheet" href="css/styles.css">
     <style>
         body {
@@ -121,6 +132,16 @@
             overflow: hidden;
         }
 
+        .game-preview {
+            transition: transform 0.25s cubic-bezier(.4,2,.6,1), box-shadow 0.25s;
+            box-shadow: 0 2px 16px rgba(99,102,241,0.10);
+        }
+        .game-card:hover .game-preview {
+            transform: scale(1.08);
+            box-shadow: 0 8px 32px rgba(99,102,241,0.25), 0 1.5px 12px rgba(139,92,246,0.10);
+            z-index: 1;
+        }
+
         .game-badge {
             position: absolute;
             top: 1rem;
@@ -222,6 +243,7 @@
         <div class="games-grid">
             <a href="proof-puzzle.html" class="game-card">
                 <div class="game-image">
+                    <img src="images/games/proof_puzzle.png" alt="Proof Puzzle preview" class="game-preview" style="width: 100%; max-width: 180px; border-radius: 1rem; margin-bottom: 0.5rem;" loading="lazy">
                     🧩
                     <span class="game-badge badge-easy">Beginner</span>
                 </div>
@@ -239,6 +261,7 @@
 
             <a href="sudoku-game.html" class="game-card">
                 <div class="game-image">
+                    <img src="images/games/zk_sudoku.png" alt="ZK Sudoku preview" class="game-preview" style="width: 100%; max-width: 180px; border-radius: 1rem; margin-bottom: 0.5rem;" loading="lazy">
                     🔢
                     <span class="game-badge badge-medium">Intermediate</span>
                 </div>
@@ -256,6 +279,7 @@
 
             <a href="memory-matrix.html" class="game-card">
                 <div class="game-image">
+                    <img src="images/games/memory_matrix.png" alt="Memory Matrix preview" class="game-preview" style="width: 100%; max-width: 180px; border-radius: 1rem; margin-bottom: 0.5rem;" loading="lazy">
                     🧠
                     <span class="game-badge badge-medium">Intermediate</span>
                 </div>
@@ -273,6 +297,7 @@
 
             <a href="zk-flow-state.html" class="game-card">
                 <div class="game-image">
+                    <img src="images/games/zk_flow_state.png" alt="ZK Flow State preview" class="game-preview" style="width: 100%; max-width: 180px; border-radius: 1rem; margin-bottom: 0.5rem;" loading="lazy">
                     🔄
                     <span class="game-badge badge-medium">Intermediate</span>
                 </div>
@@ -290,6 +315,7 @@
 
             <a href="zk_xo_game.html" class="game-card">
                 <div class="game-image">
+                    <img src="images/games/zk_xo.png" alt="ZK XO preview" class="game-preview" style="width: 100%; max-width: 180px; border-radius: 1rem; margin-bottom: 0.5rem;" loading="lazy">
                     ❌⭕️
                     <span class="game-badge badge-easy">Beginner</span>
                 </div>
@@ -303,6 +329,7 @@
 
             <a href="zk_rps_game.html" class="game-card">
                 <div class="game-image">
+                    <img src="images/games/zk_rps.png" alt="ZK Rock Paper Scissors preview" class="game-preview" style="width: 100%; max-width: 180px; border-radius: 1rem; margin-bottom: 0.5rem;" loading="lazy">
                     ✊✋✌️
                     <span class="game-badge badge-easy">Beginner</span>
                 </div>
@@ -321,6 +348,7 @@
 
             <a href="zk_snake_game.html" class="game-card">
                 <div class="game-image">
+                    <img src="images/games/zk_snake.png" alt="ZK Snake preview" class="game-preview" style="width: 100%; max-width: 180px; border-radius: 1rem; margin-bottom: 0.5rem;" loading="lazy">
                     🐍
                     <span class="game-badge badge-easy">Beginner</span>
                 </div>
@@ -339,6 +367,7 @@
 
             <a href="proof-racing.html" class="game-card">
                 <div class="game-image">
+                    <img src="images/games/proof_racing.png" alt="Proof Racing preview" class="game-preview" style="width: 100%; max-width: 180px; border-radius: 1rem; margin-bottom: 0.5rem;" loading="lazy">
                     🏁
                     <span class="game-badge badge-hard">Advanced</span>
                 </div>
