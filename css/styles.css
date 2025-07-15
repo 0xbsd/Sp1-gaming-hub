@@ -69,9 +69,10 @@ body {
 
 /* Navigation */
 .nav-header {
-  background: rgba(30, 41, 59, 0.95);
+  background: #D9F3EC;
+  color: #D9F3EC;
   backdrop-filter: blur(10px);
-  border-bottom: 1px solid var(--border);
+  border-bottom: 1px solid #D9F3EC;
   padding: 1rem 2rem;
   position: sticky;
   top: 0;
@@ -89,20 +90,30 @@ body {
 .logo {
   font-size: 1.5rem;
   font-weight: bold;
-  background: var(--gradient);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
+  color: #0f172a;
+  background: none;
+  -webkit-background-clip: unset;
+  -webkit-text-fill-color: unset;
   text-decoration: none;
+  display: flex;
+  align-items: center;
+}
+
+.logo-img {
+  max-height: 34px;
+  width: auto;
+  margin-right: 0.5rem;
 }
 
 .nav-links {
   display: flex;
   gap: 2rem;
   align-items: center;
+  color: #0f172a;
 }
 
 .nav-link {
-  color: var(--text-dim);
+  color: #0f172a;
   text-decoration: none;
   transition: color 0.3s;
 }

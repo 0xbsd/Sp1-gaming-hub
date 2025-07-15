@@ -901,7 +901,8 @@
         let gameState = {
             difficulty: 'sprint',
             isRacing: false,
-            raceStartTime: 0,
+            remainingTime: 300, // seconds (5 minutes)
+            timerInterval: null,
             playerProgress: 0,
             ai1Progress: 0,
             ai2Progress: 0,
@@ -1041,7 +1042,7 @@
 
         function actuallyStartRace() {
             gameState.isRacing = true;
-            gameState.raceStartTime = Date.now();
+            gameState.remainingTime = 300; // 5 minutes
             gameState.playerProgress = 0;
             gameState.ai1Progress = 0;
             gameState.ai2Progress = 0;
@@ -1050,13 +1051,27 @@
             gameState.combo = 0;
             gameState.wrongAnswers = 0;
             
+            // Clear any previous timer
+            if (gameState.timerInterval) clearInterval(gameState.timerInterval);
+            updateRaceTimer();
+            gameState.timerInterval = setInterval(() => {
+                if (!gameState.isRacing) return;
+                gameState.remainingTime--;
+                updateRaceTimer();
+                if (gameState.remainingTime <= 0) {
+                    gameState.remainingTime = 0;
+                    updateRaceTimer();
+                    finishRace(false);
+                }
+            }, 1000);
+
             const proofBtn = document.getElementById('proofBtn');
             const solutionInput = document.getElementById('solutionInput');
-            
+
             proofBtn.disabled = false;
             solutionInput.disabled = false;
             solutionInput.focus();
-            
+
             loadNextChallenge();
             startAIRacers();
             updateRaceProgress();
@@ -1110,21 +1125,26 @@
             gameState.proofCount++;
             gameState.combo++;
             gameState.wrongAnswers = 0; // Reset wrong answer streak
-            
+
+            // Add 30 seconds for each correct answer
+            gameState.remainingTime += 30;
+            if (gameState.remainingTime > 600) gameState.remainingTime = 600; // Optional: cap at 10 minutes
+            updateRaceTimer();
+
             const totalChallenges = challenges[gameState.difficulty].length;
             gameState.playerProgress = ((gameState.currentChallenge + 1) / totalChallenges) * 50; // Slower progress for longer race
-            
+
             // Visual feedback
             createParticles();
             updateSpeed();
-            
+
             // Speed boost for correct answers
             if (gameState.combo > 1) {
                 gameState.playerProgress += Math.min(gameState.combo, 5); // Bonus progress
             }
-            
+
             gameState.currentChallenge++;
-            
+
             if (gameState.currentChallenge >= totalChallenges) {
                 finishRace(true);
             } else {
@@ -1132,7 +1152,7 @@
                     loadNextChallenge();
                 }, 500);
             }
-            
+
             updateRaceProgress();
         }
 
@@ -1251,12 +1271,13 @@
         // Enhanced race finish
         function finishRace(won) {
             gameState.isRacing = false;
-            
             if (aiUpdateInterval) clearInterval(aiUpdateInterval);
-            
-            const raceTime = Math.floor((Date.now() - gameState.raceStartTime) / 1000);
+            if (gameState.timerInterval) clearInterval(gameState.timerInterval);
+
+            const timeTaken = 300 - gameState.remainingTime;
+            const raceTime = Math.max(timeTaken, 0);
             const position = won ? 1 : (gameState.ai1Progress > gameState.ai2Progress ? 3 : 2);
-            
+
             let points = 0;
             if (won) {
                 points = Math.max(1000 - (raceTime * 5) + (gameState.combo * 50), 100);
@@ -1268,7 +1289,7 @@
             }
             
             gameState.totalPoints += points;
-            
+
             // Update modal
             const minutes = Math.floor(raceTime / 60);
             const seconds = raceTime % 60;
@@ -1279,10 +1300,10 @@
                 position === 1 ? '1st' : position === 2 ? '2nd' : '3rd';
             document.getElementById('proofsGenerated').textContent = gameState.proofCount;
             document.getElementById('pointsEarned').textContent = points;
-            
+
             updateStats();
             saveGameProgress();
-            
+
             if (won) {
                 setTimeout(() => {
                     document.getElementById('victoryModal').classList.add('show');
@@ -1344,9 +1365,10 @@
             gameState.proofCount = 0;
             gameState.combo = 0;
             gameState.wrongAnswers = 0;
-            
+            gameState.remainingTime = 300;
             if (aiUpdateInterval) clearInterval(aiUpdateInterval);
-            
+            if (gameState.timerInterval) clearInterval(gameState.timerInterval);
+
             // Reset UI
             document.getElementById('startBtn').disabled = false;
             document.getElementById('proofBtn').disabled = true;
@@ -1355,7 +1377,7 @@
             document.getElementById('challengeContent').innerHTML = 'Press "Start Race" to begin!';
             document.getElementById('particles').innerHTML = '';
             document.getElementById('hintDisplay').classList.remove('show');
-            
+            updateRaceTimer();
             updateRaceProgress();
             updateSpeed();
         }
@@ -1364,8 +1386,7 @@
         function updateStats() {
             document.getElementById('racesWon').textContent = gameState.racesWon;
             document.getElementById('totalPoints').textContent = gameState.totalPoints;
-            
-            if (gameState.bestTime) {
+            if (gameState.bestTime !== null && gameState.bestTime !== undefined) {
                 const minutes = Math.floor(gameState.bestTime / 60);
                 const seconds = gameState.bestTime % 60;
                 document.getElementById('bestTime').textContent = 

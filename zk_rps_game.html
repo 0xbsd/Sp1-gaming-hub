@@ -872,17 +872,15 @@
                     
                     <div class="move-selection" id="moveSelection">
                         <div class="move-btn rock" onclick="selectMove('rock')" data-move="rock">
-                            🪨
-                        </div>
-                        <div class="move-btn paper" onclick="selectMove('paper')" data-move="paper">
-                            📄
-                        </div>
-                        <div class="move-btn scissors" onclick="selectMove('scissors')" data-move="scissors">
-                            ✂️
-                        </div>
-                    </div>
-                </div>
 
+        <div class="game-container">
+            <!-- Header -->
+            <div class="game-header">
+                <h1 class="game-title">
+                    <span>✂️</span>
+                    <span>ZK Rock Paper Scissors</span>
+                </h1>
+                <p class="game-subtitle">Learn cryptographic commitments through the classic game!</p>
                 <div class="vs-divider">
                     <div class="vs-text">VS</div>
                     <div class="round-counter">Round <span id="roundNumber">1</span></div>
@@ -1842,6 +1840,18 @@
 
         console.log('✂️ ZK Rock Paper Scissors loaded successfully!');
         console.log('Keyboard shortcuts: R = Rock, P = Paper, S = Scissors, Space/Enter = Next action');
+    </script>
+    <script src="js/zkhub-optimizations.js"></script>
+    <script>
+      if ('serviceWorker' in navigator) {
+        window.addEventListener('load', function() {
+          navigator.serviceWorker.register('/sw.js').then(function(registration) {
+            console.log('ServiceWorker registration successful with scope: ', registration.scope);
+          }, function(err) {
+            console.log('ServiceWorker registration failed: ', err);
+          });
+        });
+      }
     </script>
 </body>
 </html>

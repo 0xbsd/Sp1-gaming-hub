@@ -545,9 +545,11 @@
     <nav class="nav">
         <div class="nav-content">
             <a href="#" class="logo">
-                <span>🎮</span>
-                <span>ZK Gaming Hub</span>
-            </a>
+  <picture>
+    <source type="image/webp" srcset="images/logo.webp">
+    <img src="images/logo.png" alt="ZK Gaming Hub Logo" class="logo-img">
+  </picture>
+</a>
             <a href="games.html" class="nav-link">Games →</a>
         </div>
     </nav>
@@ -1189,6 +1191,18 @@
                 trackEvent('easter_egg_found', { type: 'konami' });
             }
         });
+    </script>
+    <script src="js/zkhub-optimizations.js"></script>
+    <script>
+      if ('serviceWorker' in navigator) {
+        window.addEventListener('load', function() {
+          navigator.serviceWorker.register('/sw.js').then(function(registration) {
+            console.log('ServiceWorker registration successful with scope: ', registration.scope);
+          }, function(err) {
+            console.log('ServiceWorker registration failed: ', err);
+          });
+        });
+      }
     </script>
 </body>
 </html>

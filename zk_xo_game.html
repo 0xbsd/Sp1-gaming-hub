@@ -798,6 +798,7 @@
             z-index: 9999;
         }
     </style>
+    <link rel="stylesheet" href="css/zkhub-optimizations.css">
 </head>
 <body>
     <!-- Navigation -->
@@ -1792,6 +1793,18 @@
 
         console.log('⚡ ZK XO loaded successfully!');
         console.log('Controls: Click cells or use keys 1-9, R to restart, H for hint, P for proof');
+    </script>
+    <script src="js/zkhub-optimizations.js"></script>
+    <script>
+      if ('serviceWorker' in navigator) {
+        window.addEventListener('load', function() {
+          navigator.serviceWorker.register('/sw.js').then(function(registration) {
+            console.log('ServiceWorker registration successful with scope: ', registration.scope);
+          }, function(err) {
+            console.log('ServiceWorker registration failed: ', err);
+          });
+        });
+      }
     </script>
 </body>
 </html>
