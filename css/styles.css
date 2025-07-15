@@ -92,7 +92,8 @@ body {
   font-weight: bold;
   color: #0f172a;
   background: none;
-  -webkit-background-clip: unset;
+  background-clip: text;
+  -webkit-background-clip: text;
   -webkit-text-fill-color: unset;
   text-decoration: none;
   display: flex;
